@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#111111" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>Rep Bank</title>
+  <title>Daily Maintenance</title>
   <style>
     :root {
       --bg: #f3efe6;
@@ -20,9 +20,7 @@
       --shadow: 0 14px 40px rgba(0,0,0,0.12);
       --radius: 24px;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -31,34 +29,12 @@
       min-height: 100vh;
       padding: env(safe-area-inset-top) 18px env(safe-area-inset-bottom);
     }
-
-    .app {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 22px 0 32px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      font-size: 28px;
-      letter-spacing: -0.04em;
-      margin: 0;
-    }
-
-    .date {
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 650;
-    }
-
+    .app { max-width: 520px; margin: 0 auto; padding: 22px 0 32px; }
+    header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; gap: 16px; }
+    h1 { font-size: 28px; letter-spacing: -0.04em; margin: 0; }
+    .date { color: var(--muted); font-size: 14px; font-weight: 700; text-align:right; }
     .card {
-      background: rgba(255,250,240,0.9);
+      background: rgba(255,250,240,0.92);
       border: 1px solid rgba(216,208,192,0.9);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -66,30 +42,26 @@
       margin-bottom: 16px;
       backdrop-filter: blur(12px);
     }
-
-    .target-label {
+    .label {
       color: var(--muted);
-      font-weight: 750;
-      font-size: 14px;
+      font-weight: 800;
+      font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
-
     .target {
-      font-size: 76px;
+      font-size: 82px;
       line-height: 0.95;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: -0.08em;
       margin: 8px 0 12px;
     }
-
     .target span {
       font-size: 18px;
       letter-spacing: 0;
       color: var(--muted);
       margin-left: 6px;
     }
-
     .bar-wrap {
       background: #e5dccb;
       border-radius: 99px;
@@ -98,7 +70,6 @@
       margin: 16px 0 10px;
       border: 1px solid #d1c7b7;
     }
-
     .bar {
       height: 100%;
       width: 0%;
@@ -106,341 +77,283 @@
       border-radius: 99px;
       transition: width 0.25s ease;
     }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 14px;
-    }
-
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
     .mini {
       background: rgba(255,255,255,0.55);
       border: 1px solid var(--line);
       border-radius: 18px;
       padding: 14px;
     }
-
-    .mini .num {
-      font-size: 28px;
-      font-weight: 850;
-      letter-spacing: -0.04em;
-    }
-
-    .mini .label {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-
+    .mini .num { font-size: 28px; font-weight: 900; letter-spacing: -0.04em; }
+    .mini .small { font-size: 12px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+    .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
     button {
       border: 0;
       border-radius: 18px;
       padding: 16px 8px;
-      font-size: 18px;
-      font-weight: 850;
+      font-size: 17px;
+      font-weight: 900;
       background: var(--ink);
       color: white;
       cursor: pointer;
       touch-action: manipulation;
     }
-
     button:active { transform: scale(0.98); }
-
-    button.secondary {
-      background: #efe5d4;
-      color: var(--ink);
-      border: 1px solid var(--line);
-    }
-
-    button.danger {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--line);
-    }
-
-    button.rest {
-      background: var(--rest);
-      color: white;
-    }
-
-    .custom {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    input {
+    button.secondary { background: #efe5d4; color: var(--ink); border: 1px solid var(--line); }
+    button.danger { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+    button.full { grid-column: 1 / -1; }
+    .custom { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 10px; }
+    input, select {
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 18px;
-      padding: 0 16px;
-      font-size: 18px;
+      padding: 14px 16px;
+      font-size: 17px;
       font-weight: 750;
       background: #fffaf0;
       color: var(--ink);
     }
-
-    .history {
-      display: grid;
-      gap: 9px;
-      margin-top: 8px;
+    .form { display: grid; gap: 12px; margin-top: 14px; }
+    .history { display: grid; gap: 9px; margin-top: 8px; }
+    .entry { display: flex; justify-content: space-between; color: var(--muted); font-weight: 750; border-bottom: 1px solid rgba(216,208,192,0.75); padding-bottom: 8px; }
+    .rest-message, .done-message {
+      font-size: 38px; line-height: 1; font-weight: 950; letter-spacing: -0.06em; margin: 12px 0;
     }
-
-    .entry {
-      display: flex;
-      justify-content: space-between;
-      color: var(--muted);
-      font-weight: 700;
-      border-bottom: 1px solid rgba(216,208,192,0.75);
-      padding-bottom: 8px;
-    }
-
-    .settings {
-      display: grid;
-      gap: 10px;
-    }
-
-    .setting-line {
-      display: grid;
-      grid-template-columns: 1fr 90px;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .setting-line label {
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 750;
-    }
-
-    .setting-line input {
-      min-height: 48px;
-      text-align: center;
-    }
-
-    .rest-message {
-      font-size: 38px;
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: -0.06em;
-      margin: 12px 0;
-      color: var(--rest);
-    }
-
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      padding: 10px;
-    }
-
+    .rest-message { color: var(--rest); }
+    .done-message { color: var(--accent-dark); }
+    .muted { color: var(--muted); font-weight: 720; }
+    .hide { display:none; }
+    footer { text-align: center; color: var(--muted); font-size: 12px; padding: 10px; }
     @media (max-width: 360px) {
-      .target { font-size: 64px; }
-      button { font-size: 16px; }
+      .target { font-size: 66px; }
+      button { font-size: 15px; }
     }
   </style>
 </head>
 <body>
   <main class="app">
     <header>
-      <h1>Rep Bank</h1>
+      <h1>Daily Maintenance</h1>
       <div class="date" id="todayText"></div>
     </header>
 
-    <section class="card" id="mainCard">
-      <div class="target-label">Today’s target</div>
+    <section id="setupCard" class="card hide">
+      <div class="label">Begin proceedings</div>
+      <h2 style="margin:8px 0 4px;letter-spacing:-0.04em;">Start a challenge</h2>
+      <p class="muted" style="margin-top:0;">Phase 1 keeps things simple: 8 weeks, 450 push-ups per week, Monday–Saturday assigned, Sunday administrative leave.</p>
+      <div class="form">
+        <label>
+          <div class="label">Challenge name</div>
+          <input id="challengeName" value="Winter Push-Up Challenge" />
+        </label>
+        <label>
+          <div class="label">Start date</div>
+          <input id="startDate" type="date" />
+        </label>
+        <button onclick="startChallenge()">Begin Challenge</button>
+      </div>
+    </section>
+
+    <section id="mainCard" class="card hide">
+      <div class="label" id="weekLabel">Today’s allocation</div>
       <div id="activeView">
         <div class="target"><span id="targetNum">0</span><span>push-ups</span></div>
         <div class="bar-wrap"><div class="bar" id="progressBar"></div></div>
-        <div class="stats-row">
+        <div id="doneMessage" class="done-message hide">Recorded.</div>
+        <div class="grid2">
           <div class="mini">
             <div class="num" id="completedNum">0</div>
-            <div class="label">Completed</div>
+            <div class="small">Processed</div>
           </div>
           <div class="mini">
             <div class="num" id="remainingNum">0</div>
-            <div class="label">Remaining</div>
+            <div class="small">Outstanding</div>
           </div>
         </div>
-
         <div class="buttons">
           <button onclick="addReps(5)">+5</button>
           <button onclick="addReps(10)">+10</button>
           <button onclick="addReps(15)">+15</button>
           <button onclick="addReps(20)">+20</button>
         </div>
-
         <div class="custom">
           <input id="customInput" inputmode="numeric" pattern="[0-9]*" placeholder="Custom amount" />
           <button onclick="addCustom()">Bank</button>
         </div>
       </div>
-
-      <div id="restView" style="display:none;">
-        <div class="rest-message">Rest day.</div>
-        <p style="color:var(--muted);font-weight:700;margin:0;">No target today. Shoulders say thanks.</p>
+      <div id="restView" class="hide">
+        <div class="rest-message">Administrative leave.</div>
+        <p class="muted" style="margin:0;">No allocation today. Resume tomorrow.</p>
+      </div>
+      <div id="waitingView" class="hide">
+        <div class="rest-message">Not yet.</div>
+        <p class="muted" style="margin:0;">This challenge starts on <span id="waitingDate"></span>.</p>
+      </div>
+      <div id="completeView" class="hide">
+        <div class="done-message">File closed.</div>
+        <p class="muted" style="margin:0;">The challenge is complete. Sensible behaviour has been recorded.</p>
       </div>
     </section>
 
-    <section class="card">
-      <div class="stats-row">
+    <section id="statsCard" class="card hide">
+      <div class="grid2">
         <div class="mini">
           <div class="num" id="weekNum">0</div>
-          <div class="label">This week</div>
+          <div class="small">This week</div>
         </div>
         <div class="mini">
-          <div class="num" id="lifeNum">0</div>
-          <div class="label">Lifetime</div>
+          <div class="num" id="challengeNum">0</div>
+          <div class="small">Challenge total</div>
         </div>
       </div>
     </section>
 
-    <section class="card">
-      <div class="target-label">Today’s banked sets</div>
+    <section id="recordCard" class="card hide">
+      <div class="label">Today’s record</div>
       <div class="history" id="history"></div>
     </section>
 
-    <section class="card">
-      <div class="target-label">Controls</div>
+    <section id="controlsCard" class="card hide">
+      <div class="label">Controls</div>
       <div class="buttons">
-        <button class="secondary" onclick="newTarget()">New target</button>
-        <button class="rest" onclick="toggleRestDay()">Rest day</button>
         <button class="danger" onclick="undoLast()">Undo</button>
         <button class="danger" onclick="resetToday()">Reset</button>
+        <button class="secondary full" onclick="confirmNewChallenge()">Start a new challenge</button>
       </div>
     </section>
 
-    <section class="card">
-      <div class="target-label">Challenge settings</div>
-      <div class="settings">
-        <div class="setting-line">
-          <label for="lowTarget">Low day</label>
-          <input id="lowTarget" type="number" min="1" value="50" />
-        </div>
-        <div class="setting-line">
-          <label for="midTarget">Medium day</label>
-          <input id="midTarget" type="number" min="1" value="70" />
-        </div>
-        <div class="setting-line">
-          <label for="highTarget">High day</label>
-          <input id="highTarget" type="number" min="1" value="95" />
-        </div>
-        <button class="secondary" onclick="saveSettings()">Save settings</button>
-      </div>
-    </section>
-
-    <footer>Preset 28-day challenge · bank reps throughout the day.</footer>
+    <footer>450 per week · Sunday administrative leave · future days remain undisclosed.</footer>
   </main>
 
   <script>
-    const STORAGE_KEY = "repBank.v1";
+    const STORAGE_KEY = "dailyMaintenance.v4";
+    const WEEKLY_TOTAL = 450;
+    const WEEKS = 8;
+    const MIN_DAY = 50;
+    const MAX_DAY = 100;
 
     const todayKey = () => new Date().toISOString().slice(0, 10);
+    const parseDate = key => new Date(key + "T00:00:00");
+    const dateToKey = date => date.toISOString().slice(0, 10);
 
-    const niceDate = () => {
-      return new Intl.DateTimeFormat("en-AU", {
-        weekday: "short",
-        day: "numeric",
-        month: "short"
-      }).format(new Date());
-    };
+    const niceDate = date => new Intl.DateTimeFormat("en-AU", {
+      weekday: "short", day: "numeric", month: "short"
+    }).format(date);
 
-    const defaultState = () => ({
-      settings: { low: 50, mid: 70, high: 95 },
-      days: {}
-    });
-
+    const defaultState = () => ({ challenge: null });
     let state = loadState();
 
     function loadState() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return defaultState();
-      try {
-        return { ...defaultState(), ...JSON.parse(saved) };
-      } catch {
-        return defaultState();
-      }
+      try { return { ...defaultState(), ...JSON.parse(saved) }; }
+      catch { return defaultState(); }
     }
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
+    function tomorrowKey() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return dateToKey(d);
+    }
 
-    const challengePlan = [
-      { day: 1, target: 55 }, { day: 2, target: 70 }, { day: 3, target: 45 },
-      { day: 4, target: 85 }, { day: 5, target: 60 }, { day: 6, target: 75 },
-      { day: 7, rest: true },
-
-      { day: 8, target: 65 }, { day: 9, target: 80 }, { day: 10, target: 50 },
-      { day: 11, target: 95 }, { day: 12, target: 70 }, { day: 13, target: 85 },
-      { day: 14, rest: true },
-
-      { day: 15, target: 75 }, { day: 16, target: 90 }, { day: 17, target: 60 },
-      { day: 18, target: 105 }, { day: 19, target: 80 }, { day: 20, target: 95 },
-      { day: 21, rest: true },
-
-      { day: 22, target: 85 }, { day: 23, target: 100 }, { day: 24, target: 70 },
-      { day: 25, target: 110 }, { day: 26, target: 90 }, { day: 27, target: 105 },
-      { day: 28, rest: true }
-    ];
-
-    function getChallengeStartDate() {
-      if (!state.challengeStartDate) {
-        state.challengeStartDate = todayKey();
-        saveState();
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
       }
-      return state.challengeStartDate;
+      return arr;
     }
 
-    function getChallengeDayNumber() {
-      const start = new Date(getChallengeStartDate() + "T00:00:00");
-      const now = new Date(todayKey() + "T00:00:00");
-      const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-      return (diff % challengePlan.length) + 1;
+    function hasObviousPattern(nums) {
+      const ascending = nums.every((n, i) => i === 0 || n >= nums[i - 1]);
+      const descending = nums.every((n, i) => i === 0 || n <= nums[i - 1]);
+      const adjacentRepeats = nums.some((n, i) => i > 0 && n === nums[i - 1]);
+      return ascending || descending || adjacentRepeats;
     }
 
-    function getPlanForToday() {
-      const challengeDay = getChallengeDayNumber();
-      return challengePlan.find(item => item.day === challengeDay) || challengePlan[0];
-    }
-
-    function generateTarget() {
-      const plan = getPlanForToday();
-      return plan.rest ? 0 : plan.target;
-    }
-
-
-    function today() {
-      const key = todayKey();
-      const plan = getPlanForToday();
-      if (!state.days[key]) {
-        state.days[key] = {
-          target: plan.rest ? 0 : plan.target,
-          reps: [],
-          rest: !!plan.rest,
-          challengeDay: plan.day
-        };
-        saveState();
+    function makeCuratedWeek() {
+      for (let attempt = 0; attempt < 500; attempt++) {
+        const easy = 50 + Math.floor(Math.random() * 11);
+        const big = 92 + Math.floor(Math.random() * 9);
+        let remaining = WEEKLY_TOTAL - easy - big;
+        const mids = [];
+        for (let i = 0; i < 3; i++) {
+          const minRemaining = (3 - i) * 62;
+          const maxForThis = Math.min(88, remaining - minRemaining);
+          const minForThis = Math.max(62, remaining - (3 - i) * 88);
+          const value = minForThis + Math.floor(Math.random() * (maxForThis - minForThis + 1));
+          mids.push(value);
+          remaining -= value;
+        }
+        mids.push(remaining);
+        const nums = shuffle([easy, big, ...mids]);
+        const valid = nums.reduce((a,b) => a+b, 0) === WEEKLY_TOTAL &&
+          nums.every(n => n >= MIN_DAY && n <= MAX_DAY) &&
+          !hasObviousPattern(nums);
+        if (valid) return nums;
       }
-      return state.days[key];
+      return shuffle([55, 96, 72, 84, 63, 80]);
+    }
+
+    function generateChallenge(name, startDate) {
+      const days = {};
+      let current = parseDate(startDate);
+
+      for (let week = 1; week <= WEEKS; week++) {
+        const targets = makeCuratedWeek();
+        for (let day = 0; day < 7; day++) {
+          const key = dateToKey(current);
+          if (day === 6) {
+            days[key] = { week, dayOfWeek: day, target: 0, rest: true, reps: [] };
+          } else {
+            days[key] = { week, dayOfWeek: day, target: targets[day], rest: false, reps: [] };
+          }
+          current.setDate(current.getDate() + 1);
+        }
+      }
+
+      return {
+        name,
+        startDate,
+        created: new Date().toISOString(),
+        weeks: WEEKS,
+        weeklyTotal: WEEKLY_TOTAL,
+        days
+      };
+    }
+
+    function getTodayEntry() {
+      if (!state.challenge) return null;
+      return state.challenge.days[todayKey()] || null;
+    }
+
+    function startChallenge() {
+      const name = document.getElementById("challengeName").value.trim() || "Push-Up Challenge";
+      const startDate = document.getElementById("startDate").value || tomorrowKey();
+      state.challenge = generateChallenge(name, startDate);
+      saveState();
+      render();
+    }
+
+    function confirmNewChallenge() {
+      if (!confirm("Start a new challenge? This will replace the current one.")) return;
+      state.challenge = null;
+      saveState();
+      render();
     }
 
     function addReps(num) {
-      const day = today();
-      if (day.rest) return;
-      day.reps.push({ amount: num, time: new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" }) });
+      const day = getTodayEntry();
+      if (!day || day.rest) return;
+      day.reps.push({
+        amount: num,
+        time: new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })
+      });
       saveState();
       render();
     }
@@ -454,41 +367,17 @@
     }
 
     function undoLast() {
-      const day = today();
+      const day = getTodayEntry();
+      if (!day) return;
       day.reps.pop();
       saveState();
       render();
     }
 
     function resetToday() {
-      if (!confirm("Reset today’s banked push-ups?")) return;
-      const day = today();
+      const day = getTodayEntry();
+      if (!day || !confirm("Reset today’s banked push-ups?")) return;
       day.reps = [];
-      saveState();
-      render();
-    }
-
-    function newTarget() {
-      const day = today();
-      if (!confirm("Generate a new target for today?")) return;
-      day.target = generateTarget();
-      day.reps = [];
-      day.rest = false;
-      saveState();
-      render();
-    }
-
-    function toggleRestDay() {
-      const day = today();
-      day.rest = !day.rest;
-      saveState();
-      render();
-    }
-
-    function saveSettings() {
-      state.settings.low = parseInt(document.getElementById("lowTarget").value, 10) || 50;
-      state.settings.mid = parseInt(document.getElementById("midTarget").value, 10) || 70;
-      state.settings.high = parseInt(document.getElementById("highTarget").value, 10) || 95;
       saveState();
       render();
     }
@@ -497,68 +386,126 @@
       return day.reps.reduce((sum, rep) => sum + rep.amount, 0);
     }
 
-    function getWeekTotal() {
-      const now = new Date();
-      const day = now.getDay();
-      const diffToMonday = (day + 6) % 7;
-      const monday = new Date(now);
-      monday.setDate(now.getDate() - diffToMonday);
-      monday.setHours(0,0,0,0);
-
-      return Object.entries(state.days).reduce((sum, [date, data]) => {
-        const d = new Date(date + "T00:00:00");
-        return d >= monday ? sum + getCompleted(data) : sum;
-      }, 0);
+    function getChallengeTotal() {
+      if (!state.challenge) return 0;
+      return Object.values(state.challenge.days).reduce((sum, day) => sum + getCompleted(day), 0);
     }
 
-    function getLifetimeTotal() {
-      return Object.values(state.days).reduce((sum, data) => sum + getCompleted(data), 0);
+    function getWeekTotal(week) {
+      if (!state.challenge) return 0;
+      return Object.values(state.challenge.days)
+        .filter(day => day.week === week)
+        .reduce((sum, day) => sum + getCompleted(day), 0);
+    }
+
+    function show(id, yes) {
+      document.getElementById(id).classList.toggle("hide", !yes);
+    }
+
+    function renderSetup() {
+      document.getElementById("startDate").value = tomorrowKey();
+      show("setupCard", true);
+      show("mainCard", false);
+      show("statsCard", false);
+      show("recordCard", false);
+      show("controlsCard", false);
     }
 
     function render() {
-      const day = today();
+      document.getElementById("todayText").textContent = niceDate(new Date());
+
+      if (!state.challenge) {
+        renderSetup();
+        return;
+      }
+
+      show("setupCard", false);
+      show("mainCard", true);
+      show("statsCard", true);
+      show("recordCard", true);
+      show("controlsCard", true);
+
+      const today = todayKey();
+      const start = state.challenge.startDate;
+      const allKeys = Object.keys(state.challenge.days).sort();
+      const end = allKeys[allKeys.length - 1];
+      const day = getTodayEntry();
+
+      const activeView = document.getElementById("activeView");
+      const restView = document.getElementById("restView");
+      const waitingView = document.getElementById("waitingView");
+      const completeView = document.getElementById("completeView");
+
+      activeView.classList.add("hide");
+      restView.classList.add("hide");
+      waitingView.classList.add("hide");
+      completeView.classList.add("hide");
+
+      if (today < start) {
+        document.getElementById("weekLabel").textContent = state.challenge.name;
+        document.getElementById("waitingDate").textContent = niceDate(parseDate(start));
+        waitingView.classList.remove("hide");
+        document.getElementById("weekNum").textContent = 0;
+        document.getElementById("challengeNum").textContent = 0;
+        renderHistory(null);
+        return;
+      }
+
+      if (today > end) {
+        document.getElementById("weekLabel").textContent = state.challenge.name;
+        completeView.classList.remove("hide");
+        document.getElementById("weekNum").textContent = 0;
+        document.getElementById("challengeNum").textContent = getChallengeTotal();
+        renderHistory(null);
+        return;
+      }
+
       const completed = getCompleted(day);
       const remaining = Math.max(0, day.target - completed);
       const percent = day.target > 0 ? Math.min(100, (completed / day.target) * 100) : 0;
 
-      document.getElementById("todayText").textContent = `${niceDate()} · Day ${getChallengeDayNumber()}`;
+      document.getElementById("weekLabel").textContent =
+        `${state.challenge.name} · Week ${day.week} of ${state.challenge.weeks}`;
+
       document.getElementById("targetNum").textContent = day.target;
       document.getElementById("completedNum").textContent = completed;
       document.getElementById("remainingNum").textContent = remaining;
       document.getElementById("progressBar").style.width = percent + "%";
-      document.getElementById("weekNum").textContent = getWeekTotal();
-      document.getElementById("lifeNum").textContent = getLifetimeTotal();
+      document.getElementById("doneMessage").classList.toggle("hide", !(day.target > 0 && completed >= day.target));
+      document.getElementById("weekNum").textContent = getWeekTotal(day.week);
+      document.getElementById("challengeNum").textContent = getChallengeTotal();
 
-      document.getElementById("activeView").style.display = day.rest ? "none" : "block";
-      document.getElementById("restView").style.display = day.rest ? "block" : "none";
+      if (day.rest) restView.classList.remove("hide");
+      else activeView.classList.remove("hide");
 
-      document.getElementById("lowTarget").value = state.settings.low;
-      document.getElementById("midTarget").value = state.settings.mid;
-      document.getElementById("highTarget").value = state.settings.high;
-
-      const history = document.getElementById("history");
-      history.innerHTML = "";
-      if (day.reps.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "entry";
-        empty.innerHTML = "<span>No sets banked yet</span><span>—</span>";
-        history.appendChild(empty);
-      } else {
-        [...day.reps].reverse().forEach(rep => {
-          const row = document.createElement("div");
-          row.className = "entry";
-          row.innerHTML = `<span>${rep.time}</span><span>+${rep.amount}</span>`;
-          history.appendChild(row);
-        });
-      }
+      renderHistory(day);
     }
 
-    document.getElementById("customInput").addEventListener("keydown", (event) => {
+    function renderHistory(day) {
+      const history = document.getElementById("history");
+      history.innerHTML = "";
+      if (!day || day.reps.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "entry";
+        empty.innerHTML = "<span>No sets recorded yet</span><span>—</span>";
+        history.appendChild(empty);
+        return;
+      }
+      [...day.reps].reverse().forEach(rep => {
+        const row = document.createElement("div");
+        row.className = "entry";
+        row.innerHTML = `<span>${rep.time}</span><span>+${rep.amount}</span>`;
+        history.appendChild(row);
+      });
+    }
+
+    document.getElementById("customInput").addEventListener("keydown", event => {
       if (event.key === "Enter") addCustom();
     });
 
     render();
   </script>
+
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

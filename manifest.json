@@ -1,7 +1,7 @@
 {
-  "name": "Rep Bank",
-  "short_name": "Rep Bank",
-  "description": "A simple daily push-up bank and challenge tracker.",
+  "name": "Daily Maintenance",
+  "short_name": "Maintenance",
+  "description": "A quiet daily push-up challenge tracker.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f3efe6",
