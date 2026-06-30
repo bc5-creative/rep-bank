@@ -340,7 +340,7 @@
       </div>
     </section>
 
-    <footer>Built for banking reps, not becoming unbearable at barbecues.</footer>
+    <footer>Preset 28-day challenge · bank reps throughout the day.</footer>
   </main>
 
   <script>
@@ -377,28 +377,60 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function randomBetween(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const challengePlan = [
+      { day: 1, target: 55 }, { day: 2, target: 70 }, { day: 3, target: 45 },
+      { day: 4, target: 85 }, { day: 5, target: 60 }, { day: 6, target: 75 },
+      { day: 7, rest: true },
+
+      { day: 8, target: 65 }, { day: 9, target: 80 }, { day: 10, target: 50 },
+      { day: 11, target: 95 }, { day: 12, target: 70 }, { day: 13, target: 85 },
+      { day: 14, rest: true },
+
+      { day: 15, target: 75 }, { day: 16, target: 90 }, { day: 17, target: 60 },
+      { day: 18, target: 105 }, { day: 19, target: 80 }, { day: 20, target: 95 },
+      { day: 21, rest: true },
+
+      { day: 22, target: 85 }, { day: 23, target: 100 }, { day: 24, target: 70 },
+      { day: 25, target: 110 }, { day: 26, target: 90 }, { day: 27, target: 105 },
+      { day: 28, rest: true }
+    ];
+
+    function getChallengeStartDate() {
+      if (!state.challengeStartDate) {
+        state.challengeStartDate = todayKey();
+        saveState();
+      }
+      return state.challengeStartDate;
+    }
+
+    function getChallengeDayNumber() {
+      const start = new Date(getChallengeStartDate() + "T00:00:00");
+      const now = new Date(todayKey() + "T00:00:00");
+      const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+      return (diff % challengePlan.length) + 1;
+    }
+
+    function getPlanForToday() {
+      const challengeDay = getChallengeDayNumber();
+      return challengePlan.find(item => item.day === challengeDay) || challengePlan[0];
     }
 
     function generateTarget() {
-      const { low, mid, high } = state.settings;
-      const patterns = [
-        () => randomBetween(Math.max(1, low - 8), low + 8),
-        () => randomBetween(Math.max(1, mid - 10), mid + 10),
-        () => randomBetween(Math.max(1, high - 12), high + 12)
-      ];
-      const choice = patterns[Math.floor(Math.random() * patterns.length)];
-      return choice();
+      const plan = getPlanForToday();
+      return plan.rest ? 0 : plan.target;
     }
+
 
     function today() {
       const key = todayKey();
+      const plan = getPlanForToday();
       if (!state.days[key]) {
         state.days[key] = {
-          target: generateTarget(),
+          target: plan.rest ? 0 : plan.target,
           reps: [],
-          rest: false
+          rest: !!plan.rest,
+          challengeDay: plan.day
         };
         saveState();
       }
@@ -489,7 +521,7 @@
       const remaining = Math.max(0, day.target - completed);
       const percent = day.target > 0 ? Math.min(100, (completed / day.target) * 100) : 0;
 
-      document.getElementById("todayText").textContent = niceDate();
+      document.getElementById("todayText").textContent = `${niceDate()} · Day ${getChallengeDayNumber()}`;
       document.getElementById("targetNum").textContent = day.target;
       document.getElementById("completedNum").textContent = completed;
       document.getElementById("remainingNum").textContent = remaining;

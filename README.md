@@ -1,19 +1,16 @@
-# Rep Bank
+# Rep Bank v2
 
-A tiny personal push-up banking web app.
+This version follows a preset 28-day challenge:
+- 6 training days per week
+- 1 rest day per week
+- changing daily targets
+- progress banking throughout the day
 
-## Files
-- index.html
-- manifest.json
-- service-worker.js
-- icon-192.png
-- icon-512.png
+To update your live app:
+1. Open your GitHub `rep-bank` repository.
+2. Click `index.html`.
+3. Click the pencil/edit icon.
+4. Replace the full contents with this new `index.html`.
+5. Commit changes.
 
-## Publish with GitHub Pages
-1. Create a new GitHub repository called `rep-bank`.
-2. Upload all files in this folder.
-3. Go to Settings → Pages.
-4. Under Branch, choose `main` and `/root`.
-5. Click Save.
-6. Open the GitHub Pages URL on your iPhone.
-7. In Safari, tap Share → Add to Home Screen.
+Or upload all files again and replace the old ones.
