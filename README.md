@@ -1,22 +1,13 @@
-# Daily Maintenance v4
+# Daily Maintenance — Phase 1
 
-This version generates a full 8-week challenge up front.
+Personal goal planner and tracker.
 
-Rules:
-- 450 push-ups per week
-- Monday to Saturday assigned
-- Sunday rest day
-- 8 weeks
-- Each week contains varied daily targets that total exactly 450
-- Future days remain hidden from the main interface
-- Start date is chosen on first launch
+Included:
+- Push-up allocation challenge
+- ParkRun tracker: Saturdays, 35 runs/year
+- Alcohol-free day tracker
+- Intermittent fasting tracker: goal 2/week
+- Social-media-free tracker: goal 1/week
+- Today / Progress / Settings tabs
 
-## Update GitHub Pages
-
-1. Unzip this file.
-2. Open your GitHub `rep-bank` repository.
-3. Click Add file → Upload files.
-4. Drag all files from this folder into GitHub.
-5. Commit changes.
-6. Wait a minute or two.
-7. Open the web app and refresh if needed.
+Upload all files to GitHub Pages and commit changes.

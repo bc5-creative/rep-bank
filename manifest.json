@@ -1,11 +1,11 @@
 {
   "name": "Daily Maintenance",
   "short_name": "Maintenance",
-  "description": "A quiet daily push-up challenge tracker.",
+  "description": "A personal goal planner and tracker.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f3efe6",
-  "theme_color": "#111111",
+  "background_color": "#f2e5cf",
+  "theme_color": "#2f3a2f",
   "icons": [
     {
       "src": "icon-192.png",
