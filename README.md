@@ -1,13 +1,10 @@
-# Daily Maintenance — Phase 1
+# Daily Maintenance — Phase 1B
 
-Personal goal planner and tracker.
+Practical update:
+- Review replaces Progress
+- ParkRuns already completed this year can be entered in Settings
+- ParkRun still appears automatically on Saturdays
+- Lining figures requested in CSS
+- Slightly stronger olive/red accents
 
-Included:
-- Push-up allocation challenge
-- ParkRun tracker: Saturdays, 35 runs/year
-- Alcohol-free day tracker
-- Intermittent fasting tracker: goal 2/week
-- Social-media-free tracker: goal 1/week
-- Today / Progress / Settings tabs
-
-Upload all files to GitHub Pages and commit changes.
+Upload all files to GitHub and commit.
