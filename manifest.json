@@ -4,7 +4,7 @@
   "description": "A personal goal planner and tracker.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f2e5cf",
+  "background_color": "#2b1a13",
   "theme_color": "#2f3a2f",
   "icons": [
     {
