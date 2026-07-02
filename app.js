@@ -1,1 +1,514 @@
-const STORAGE_KEY="dailyMaintenance.phase1b",PUSH_WEEKLY_TOTAL=450,PUSH_WEEKS=8,PARKRUN_GOAL=35;let recordAmount=20,discSide="front";const todayKey=()=>new Date().toISOString().slice(0,10),parseDate=k=>new Date(k+"T00:00:00"),dateToKey=d=>d.toISOString().slice(0,10),niceDate=d=>new Intl.DateTimeFormat("en-AU",{weekday:"long",day:"numeric",month:"long"}).format(d);function tomorrowKey(){let d=new Date;return d.setDate(d.getDate()+1),dateToKey(d)}function defaultState(){return{view:"today",settings:{pushStartDate:tomorrowKey(),parkRunStartingTotal:0},pushups:{challenge:null},commitments:{}}}let state=loadState();function loadState(){let s=localStorage.getItem(STORAGE_KEY);if(!s)return defaultState();try{return{...defaultState(),...JSON.parse(s)}}catch{return defaultState()}}function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}function getMonday(date=new Date){let d=new Date(date),day=d.getDay(),diff=(day+6)%7;return d.setDate(d.getDate()-diff),d.setHours(0,0,0,0),d}function weekBounds(){let s=getMonday(),e=new Date(s);return e.setDate(e.getDate()+6),{startKey:dateToKey(s),endKey:dateToKey(e)}}function shuffle(a){let arr=[...a];for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}function hasObviousPattern(n){return n.every((x,i)=>0===i||x>=n[i-1])||n.every((x,i)=>0===i||x<=n[i-1])||n.some((x,i)=>i>0&&x===n[i-1])}function makeCuratedPushupWeek(){for(let a=0;a<500;a++){let easy=50+Math.floor(11*Math.random()),big=92+Math.floor(9*Math.random()),r=PUSH_WEEKLY_TOTAL-easy-big,m=[];for(let i=0;i<3;i++){let minR=(3-i)*62,max=Math.min(88,r-minR),min=Math.max(62,r-(3-i)*88),v=min+Math.floor(Math.random()*(max-min+1));m.push(v),r-=v}m.push(r);let nums=shuffle([easy,big,...m]);if(nums.reduce((a,b)=>a+b,0)===PUSH_WEEKLY_TOTAL&&nums.every(n=>n>=50&&n<=100)&&!hasObviousPattern(nums))return nums}return shuffle([55,96,72,84,63,80])}function generatePushupChallenge(startDate){let days={},cur=parseDate(startDate);for(let week=1;week<=PUSH_WEEKS;week++){let targets=makeCuratedPushupWeek();for(let day=0;day<7;day++){let key=dateToKey(cur);days[key]={week,target:6===day?0:targets[day],rest:6===day,reps:[]},cur.setDate(cur.getDate()+1)}}return{startDate,weeks:PUSH_WEEKS,weeklyTotal:PUSH_WEEKLY_TOTAL,days}}function ensurePushupChallenge(){state.pushups.challenge||(state.pushups.challenge=generatePushupChallenge(state.settings.pushStartDate||tomorrowKey()),saveState())}function getPushDay(){return ensurePushupChallenge(),state.pushups.challenge.days[todayKey()]||null}function getCompletedPushups(day){return day?day.reps.reduce((s,r)=>s+r.amount,0):0}function openRecordSheet(){document.getElementById("recordSheet").classList.remove("hide"),renderRecordAmount()}function closeRecordSheet(){document.getElementById("recordSheet").classList.add("hide")}function renderRecordAmount(){document.getElementById("recordAmount").textContent=recordAmount}function setRecordAmount(a){recordAmount=Math.max(1,a),renderRecordAmount()}function adjustRecord(c){recordAmount=Math.max(1,recordAmount+c),renderRecordAmount()}function recordPushups(){let day=getPushDay();day&&!day.rest&&(day.reps.push({amount:recordAmount,time:new Date().toLocaleTimeString("en-AU",{hour:"2-digit",minute:"2-digit"})}),saveState(),closeRecordSheet(),render())}function toggleDisc(){discSide="front"===discSide?"back":"front",renderDiscSide()}function renderDiscSide(){document.getElementById("discFront").classList.toggle("hide","front"!==discSide),document.getElementById("discBack").classList.toggle("hide","back"!==discSide)}function commitmentKey(t,d=todayKey()){return`${t}:${d}`}function isDone(t,d=todayKey()){return!!state.commitments[commitmentKey(t,d)]}function toggleCommitment(t){let k=commitmentKey(t);state.commitments[k]?delete state.commitments[k]:state.commitments[k]={done:!0,recordedAt:new Date().toISOString()},saveState(),render()}function countCommitments(t,s,e){return Object.keys(state.commitments).filter(k=>k.startsWith(t+":")&&(d=k.split(":")[1],d>=s&&d<=e)).length}let d;function countThisWeek(t){let{startKey:s,endKey:e}=weekBounds();return countCommitments(t,s,e)}function countParkRunsThisYear(){let y=(new Date).getFullYear(),logged=Object.keys(state.commitments).filter(k=>k.startsWith("parkrun:")&&k.includes(`:${y}-`)).length;return(parseInt(state.settings.parkRunStartingTotal,10)||0)+logged}function getPushupTotal(){return ensurePushupChallenge(),Object.values(state.pushups.challenge.days).reduce((s,d)=>s+getCompletedPushups(d),0)}function getPushupWeekTotal(){let day=getPushDay();return day?Object.values(state.pushups.challenge.days).filter(d=>d.week===day.week).reduce((s,d)=>s+getCompletedPushups(d),0):0}function commitmentItemsForToday(){let dow=(new Date).getDay(),items=[{type:"dry",title:"Dry Day",detail:`${countThisWeek("dry")} recorded this week.`},{type:"social",title:"Social-media-free day",detail:`${countThisWeek("social")} recorded this week.`}];return(2===dow||4===dow)&&items.splice(1,0,{type:"fasting",title:"Fast",detail:`${countThisWeek("fasting")} of 2 recorded this week.`}),6===dow&&items.unshift({type:"parkrun",title:"ParkRun",detail:`${countParkRunsThisYear()} of ${PARKRUN_GOAL} runs recorded this year.`}),items}function setView(v){state.view=v,saveState(),render()}function saveSettings(){state.settings.pushStartDate=document.getElementById("pushStartDate").value||tomorrowKey(),state.settings.parkRunStartingTotal=parseInt(document.getElementById("parkRunStartingTotal").value,10)||0,saveState(),render()}function regeneratePushupChallenge(){confirm("Regenerate the push-up plan? Existing push-up records will be cleared.")&&(state.pushups.challenge=generatePushupChallenge(state.settings.pushStartDate||tomorrowKey()),saveState(),render())}function resetAll(){confirm("Reset all app data? This cannot be undone.")&&(state=defaultState(),saveState(),render())}function show(id,v){document.getElementById(id).classList.toggle("hide",!v)}function renderNav(){["today","review","settings"].forEach(v=>document.getElementById("nav"+v[0].toUpperCase()+v.slice(1)).classList.toggle("active",state.view===v)),show("todayView","today"===state.view),show("reviewView","review"===state.view),show("settingsView","settings"===state.view)}function renderSegments(p){document.querySelectorAll("#pushSegments .segfill").forEach((f,i)=>{let start=25*i,local=Math.max(0,Math.min(25,p-start));f.style.width=local/25*100+"%"})}function renderPushups(){let day=getPushDay();if(!day)return;document.getElementById("briefLabel").textContent=day.rest?"Administrative leave":`Today’s brief · Week ${day.week}`;if(day.rest)return document.getElementById("pushTarget").textContent="—",document.getElementById("pushDone").textContent="0",document.getElementById("pushRemaining").textContent="0",void renderSegments(0);let completed=getCompletedPushups(day),remaining=Math.max(0,day.target-completed),percent=Math.min(100,completed/day.target*100);document.getElementById("pushTarget").textContent=day.target,document.getElementById("pushDone").textContent=completed,document.getElementById("pushRemaining").textContent=remaining,renderSegments(percent),document.getElementById("pushRecorded").classList.toggle("hide",completed<day.target);let h=document.getElementById("pushHistory");h.innerHTML="",0===day.reps.length?h.innerHTML='<div class="entry"><span>No sets recorded yet</span><span>—</span></div>':[...day.reps].reverse().forEach(rep=>{let row=document.createElement("div");row.className="entry",row.innerHTML=`<span>${rep.time}</span><span>+${rep.amount}</span>`,h.appendChild(row)});let back=document.getElementById("discBackList");back.innerHTML="",0===day.reps.length?back.innerHTML="<div>—</div>":day.reps.forEach(rep=>{let div=document.createElement("div");div.textContent=rep.amount,back.appendChild(div)}),document.getElementById("discBackTotal").textContent=completed}function renderCommitments(){let list=document.getElementById("commitmentsList");list.innerHTML="",commitmentItemsForToday().forEach(item=>{let done=isDone(item.type),row=document.createElement("div");row.className="commitment",row.innerHTML=`<div><h3>${item.title}</h3><p>${done?"Recorded.":item.detail}</p></div><button class="tick ${done?"done":""}" onclick="toggleCommitment('${item.type}')">${done?"✓":""}</button>`,list.appendChild(row)})}function renderReview(){let pr=countParkRunsThisYear();document.getElementById("weekPushTotal").textContent=getPushupWeekTotal(),document.getElementById("allPushTotal").textContent=getPushupTotal(),document.getElementById("parkRunTotal").textContent=pr,document.getElementById("parkRunRemain").textContent=Math.max(0,PARKRUN_GOAL-pr),document.getElementById("dryWeek").textContent=countThisWeek("dry"),document.getElementById("socialWeek").textContent=countThisWeek("social")}function renderSettings(){document.getElementById("pushStartDate").value=state.settings.pushStartDate||tomorrowKey(),document.getElementById("parkRunStartingTotal").value=state.settings.parkRunStartingTotal||0}function render(){ensurePushupChallenge(),document.getElementById("dateText").textContent=niceDate(new Date),renderNav(),renderPushups(),renderDiscSide(),renderCommitments(),renderReview(),renderSettings()}document.addEventListener("DOMContentLoaded",render);
+const STORAGE_KEY = "dailyMaintenance.phase1b";
+const PUSH_WEEKLY_TOTAL = 450;
+const PUSH_WEEKS = 8;
+const PARKRUN_GOAL = 35;
+
+let recordAmount = 20;
+let discSide = "front";
+
+const pad2 = value => String(value).padStart(2, "0");
+
+function dateToKey(date) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function todayKey() {
+  return dateToKey(new Date());
+}
+
+function parseDate(key) {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function addDaysKey(key, days) {
+  const date = parseDate(key);
+  date.setDate(date.getDate() + days);
+  return dateToKey(date);
+}
+
+function niceDate(date) {
+  return new Intl.DateTimeFormat("en-AU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }).format(date);
+}
+
+function tomorrowKey() {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return dateToKey(date);
+}
+
+function defaultState() {
+  return {
+    view: "today",
+    settings: { pushStartDate: tomorrowKey(), parkRunStartingTotal: 0 },
+    pushups: { challenge: null },
+    commitments: {}
+  };
+}
+
+function loadState() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const defaults = defaultState();
+
+  if (!saved) return defaults;
+
+  try {
+    const parsed = JSON.parse(saved);
+    const loaded = {
+      ...defaults,
+      ...parsed,
+      settings: { ...defaults.settings, ...(parsed.settings || {}) },
+      pushups: { ...defaults.pushups, ...(parsed.pushups || {}) },
+      commitments: parsed.commitments || {}
+    };
+
+    if (migrateState(loaded)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded));
+    }
+
+    return loaded;
+  } catch {
+    return defaults;
+  }
+}
+
+function migrateState(loaded) {
+  let changed = false;
+
+  if (!loaded.pushups || typeof loaded.pushups !== "object") {
+    loaded.pushups = { challenge: null };
+    changed = true;
+  }
+
+  const challenge = loaded.pushups.challenge;
+  if (!challenge || !challenge.days || !challenge.startDate) return changed;
+
+  Object.values(challenge.days).forEach(day => {
+    if (!Array.isArray(day.reps)) {
+      day.reps = [];
+      changed = true;
+    }
+  });
+
+  const legacyStartKey = addDaysKey(challenge.startDate, -1);
+  if (!challenge.days[challenge.startDate] && challenge.days[legacyStartKey]) {
+    const shiftedDays = {};
+
+    Object.entries(challenge.days).forEach(([key, day]) => {
+      shiftedDays[addDaysKey(key, 1)] = day;
+    });
+
+    challenge.days = shiftedDays;
+    changed = true;
+  }
+
+  return changed;
+}
+
+let state = loadState();
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function getMonday(date = new Date()) {
+  const monday = new Date(date);
+  const day = monday.getDay();
+  const diff = (day + 6) % 7;
+  monday.setDate(monday.getDate() - diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function weekBounds() {
+  const start = getMonday();
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  return { startKey: dateToKey(start), endKey: dateToKey(end) };
+}
+
+function shuffle(values) {
+  const arr = [...values];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function hasObviousPattern(numbers) {
+  return (
+    numbers.every((value, index) => index === 0 || value >= numbers[index - 1]) ||
+    numbers.every((value, index) => index === 0 || value <= numbers[index - 1]) ||
+    numbers.some((value, index) => index > 0 && value === numbers[index - 1])
+  );
+}
+
+function makeCuratedPushupWeek() {
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const easy = 50 + Math.floor(11 * Math.random());
+    const big = 92 + Math.floor(9 * Math.random());
+    let remaining = PUSH_WEEKLY_TOTAL - easy - big;
+    const medium = [];
+
+    for (let i = 0; i < 3; i++) {
+      const minRemaining = (3 - i) * 62;
+      const max = Math.min(88, remaining - minRemaining);
+      const min = Math.max(62, remaining - (3 - i) * 88);
+      const value = min + Math.floor(Math.random() * (max - min + 1));
+      medium.push(value);
+      remaining -= value;
+    }
+
+    medium.push(remaining);
+    const targets = shuffle([easy, big, ...medium]);
+
+    if (
+      targets.reduce((sum, value) => sum + value, 0) === PUSH_WEEKLY_TOTAL &&
+      targets.every(value => value >= 50 && value <= 100) &&
+      !hasObviousPattern(targets)
+    ) {
+      return targets;
+    }
+  }
+
+  return shuffle([55, 96, 72, 84, 63, 80]);
+}
+
+function generatePushupChallenge(startDate) {
+  const days = {};
+  const current = parseDate(startDate);
+
+  for (let week = 1; week <= PUSH_WEEKS; week++) {
+    const targets = makeCuratedPushupWeek();
+
+    for (let day = 0; day < 7; day++) {
+      const key = dateToKey(current);
+      days[key] = {
+        week,
+        target: day === 6 ? 0 : targets[day],
+        rest: day === 6,
+        reps: []
+      };
+      current.setDate(current.getDate() + 1);
+    }
+  }
+
+  return { startDate, weeks: PUSH_WEEKS, weeklyTotal: PUSH_WEEKLY_TOTAL, days };
+}
+
+function ensurePushupChallenge() {
+  if (!state.pushups.challenge) {
+    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || tomorrowKey());
+    saveState();
+  }
+}
+
+function getPushDay() {
+  ensurePushupChallenge();
+  return state.pushups.challenge.days[todayKey()] || null;
+}
+
+function getCompletedPushups(day) {
+  return day ? day.reps.reduce((sum, rep) => sum + rep.amount, 0) : 0;
+}
+
+function openRecordSheet() {
+  document.getElementById("recordSheet").classList.remove("hide");
+  renderRecordAmount();
+}
+
+function closeRecordSheet() {
+  document.getElementById("recordSheet").classList.add("hide");
+}
+
+function renderRecordAmount() {
+  document.getElementById("recordAmount").textContent = recordAmount;
+}
+
+function setRecordAmount(amount) {
+  recordAmount = Math.max(1, amount);
+  renderRecordAmount();
+}
+
+function adjustRecord(change) {
+  recordAmount = Math.max(1, recordAmount + change);
+  renderRecordAmount();
+}
+
+function recordPushups() {
+  const day = getPushDay();
+  if (!day || day.rest) return;
+
+  day.reps.push({
+    amount: recordAmount,
+    time: new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })
+  });
+
+  saveState();
+  closeRecordSheet();
+  render();
+}
+
+function toggleDisc() {
+  discSide = discSide === "front" ? "back" : "front";
+  renderDiscSide();
+}
+
+function renderDiscSide() {
+  document.getElementById("discFront").classList.toggle("hide", discSide !== "front");
+  document.getElementById("discBack").classList.toggle("hide", discSide !== "back");
+}
+
+function commitmentKey(type, date = todayKey()) {
+  return `${type}:${date}`;
+}
+
+function isDone(type, date = todayKey()) {
+  return !!state.commitments[commitmentKey(type, date)];
+}
+
+function toggleCommitment(type) {
+  const key = commitmentKey(type);
+  if (state.commitments[key]) {
+    delete state.commitments[key];
+  } else {
+    state.commitments[key] = { done: true, recordedAt: new Date().toISOString() };
+  }
+  saveState();
+  render();
+}
+
+function countCommitments(type, startKey, endKey) {
+  return Object.keys(state.commitments).filter(key => {
+    const date = key.split(":")[1];
+    return key.startsWith(`${type}:`) && date >= startKey && date <= endKey;
+  }).length;
+}
+
+function countThisWeek(type) {
+  const { startKey, endKey } = weekBounds();
+  return countCommitments(type, startKey, endKey);
+}
+
+function countParkRunsThisYear() {
+  const year = new Date().getFullYear();
+  const logged = Object.keys(state.commitments).filter(key => {
+    return key.startsWith("parkrun:") && key.includes(`:${year}-`);
+  }).length;
+  return (parseInt(state.settings.parkRunStartingTotal, 10) || 0) + logged;
+}
+
+function getPushupTotal() {
+  ensurePushupChallenge();
+  return Object.values(state.pushups.challenge.days).reduce((sum, day) => {
+    return sum + getCompletedPushups(day);
+  }, 0);
+}
+
+function getPushupWeekTotal() {
+  const day = getPushDay();
+  if (!day) return 0;
+
+  return Object.values(state.pushups.challenge.days)
+    .filter(candidate => candidate.week === day.week)
+    .reduce((sum, candidate) => sum + getCompletedPushups(candidate), 0);
+}
+
+function commitmentItemsForToday() {
+  const dayOfWeek = new Date().getDay();
+  const items = [
+    { type: "dry", title: "Dry Day", detail: `${countThisWeek("dry")} recorded this week.` },
+    { type: "social", title: "Social-media-free day", detail: `${countThisWeek("social")} recorded this week.` }
+  ];
+
+  if (dayOfWeek === 2 || dayOfWeek === 4) {
+    items.splice(1, 0, {
+      type: "fasting",
+      title: "Fast",
+      detail: `${countThisWeek("fasting")} of 2 recorded this week.`
+    });
+  }
+
+  if (dayOfWeek === 6) {
+    items.unshift({
+      type: "parkrun",
+      title: "ParkRun",
+      detail: `${countParkRunsThisYear()} of ${PARKRUN_GOAL} runs recorded this year.`
+    });
+  }
+
+  return items;
+}
+
+function setView(view) {
+  state.view = view;
+  saveState();
+  render();
+}
+
+function saveSettings() {
+  state.settings.pushStartDate = document.getElementById("pushStartDate").value || tomorrowKey();
+  state.settings.parkRunStartingTotal =
+    parseInt(document.getElementById("parkRunStartingTotal").value, 10) || 0;
+  saveState();
+  render();
+}
+
+function regeneratePushupChallenge() {
+  if (confirm("Regenerate the push-up plan? Existing push-up records will be cleared.")) {
+    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || tomorrowKey());
+    saveState();
+    render();
+  }
+}
+
+function resetAll() {
+  if (confirm("Reset all app data? This cannot be undone.")) {
+    state = defaultState();
+    saveState();
+    render();
+  }
+}
+
+function show(id, visible) {
+  document.getElementById(id).classList.toggle("hide", !visible);
+}
+
+function renderNav() {
+  ["today", "review", "settings"].forEach(view => {
+    const id = `nav${view[0].toUpperCase()}${view.slice(1)}`;
+    document.getElementById(id).classList.toggle("active", state.view === view);
+  });
+
+  show("todayView", state.view === "today");
+  show("reviewView", state.view === "review");
+  show("settingsView", state.view === "settings");
+}
+
+function renderSegments(percent) {
+  document.querySelectorAll("#pushSegments .segfill").forEach((fill, index) => {
+    const start = 25 * index;
+    const local = Math.max(0, Math.min(25, percent - start));
+    fill.style.width = `${(local / 25) * 100}%`;
+  });
+}
+
+function renderEmptyPushups() {
+  document.getElementById("briefLabel").textContent = "Today’s brief";
+  document.getElementById("pushTarget").textContent = "-";
+  document.getElementById("pushDone").textContent = "0";
+  document.getElementById("pushRemaining").textContent = "0";
+  document.getElementById("pushRecorded").classList.add("hide");
+  renderSegments(0);
+
+  document.getElementById("pushHistory").innerHTML =
+    '<div class="entry"><span>No target scheduled today</span><span>-</span></div>';
+  document.getElementById("discBackList").innerHTML = "<div>-</div>";
+  document.getElementById("discBackTotal").textContent = "0";
+}
+
+function renderPushups() {
+  const day = getPushDay();
+  if (!day) {
+    renderEmptyPushups();
+    return;
+  }
+
+  document.getElementById("briefLabel").textContent = day.rest
+    ? "Administrative leave"
+    : `Today’s brief · Week ${day.week}`;
+
+  if (day.rest) {
+    document.getElementById("pushTarget").textContent = "-";
+    document.getElementById("pushDone").textContent = "0";
+    document.getElementById("pushRemaining").textContent = "0";
+    document.getElementById("pushRecorded").classList.add("hide");
+    renderSegments(0);
+    return;
+  }
+
+  const completed = getCompletedPushups(day);
+  const remaining = Math.max(0, day.target - completed);
+  const percent = Math.min(100, (completed / day.target) * 100);
+
+  document.getElementById("pushTarget").textContent = day.target;
+  document.getElementById("pushDone").textContent = completed;
+  document.getElementById("pushRemaining").textContent = remaining;
+  renderSegments(percent);
+  document.getElementById("pushRecorded").classList.toggle("hide", completed < day.target);
+
+  const history = document.getElementById("pushHistory");
+  history.innerHTML = "";
+
+  if (day.reps.length === 0) {
+    history.innerHTML = '<div class="entry"><span>No sets recorded yet</span><span>-</span></div>';
+  } else {
+    [...day.reps].reverse().forEach(rep => {
+      const row = document.createElement("div");
+      row.className = "entry";
+      row.innerHTML = `<span>${rep.time}</span><span>+${rep.amount}</span>`;
+      history.appendChild(row);
+    });
+  }
+
+  const back = document.getElementById("discBackList");
+  back.innerHTML = "";
+
+  if (day.reps.length === 0) {
+    back.innerHTML = "<div>-</div>";
+  } else {
+    day.reps.forEach(rep => {
+      const div = document.createElement("div");
+      div.textContent = rep.amount;
+      back.appendChild(div);
+    });
+  }
+
+  document.getElementById("discBackTotal").textContent = completed;
+}
+
+function renderCommitments() {
+  const list = document.getElementById("commitmentsList");
+  list.innerHTML = "";
+
+  commitmentItemsForToday().forEach(item => {
+    const done = isDone(item.type);
+    const row = document.createElement("div");
+    row.className = "commitment";
+    row.innerHTML = `<div><h3>${item.title}</h3><p>${done ? "Recorded." : item.detail}</p></div><button class="tick ${done ? "done" : ""}" onclick="toggleCommitment('${item.type}')">${done ? "✓" : ""}</button>`;
+    list.appendChild(row);
+  });
+}
+
+function renderReview() {
+  const parkRuns = countParkRunsThisYear();
+  document.getElementById("weekPushTotal").textContent = getPushupWeekTotal();
+  document.getElementById("allPushTotal").textContent = getPushupTotal();
+  document.getElementById("parkRunTotal").textContent = parkRuns;
+  document.getElementById("parkRunRemain").textContent = Math.max(0, PARKRUN_GOAL - parkRuns);
+  document.getElementById("dryWeek").textContent = countThisWeek("dry");
+  document.getElementById("socialWeek").textContent = countThisWeek("social");
+}
+
+function renderSettings() {
+  document.getElementById("pushStartDate").value = state.settings.pushStartDate || tomorrowKey();
+  document.getElementById("parkRunStartingTotal").value = state.settings.parkRunStartingTotal || 0;
+}
+
+function render() {
+  ensurePushupChallenge();
+  document.getElementById("dateText").textContent = niceDate(new Date());
+  renderNav();
+  renderPushups();
+  renderDiscSide();
+  renderCommitments();
+  renderReview();
+  renderSettings();
+}
+
+document.addEventListener("DOMContentLoaded", render);
