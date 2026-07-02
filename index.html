@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#22130d" />
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css?v=2026-07-03-1" />
 <title>done</title>
 </head>
 <body>
@@ -87,7 +87,13 @@
 </div>
 </div>
 
-<script src="app.js"></script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./service-worker.js").catch(()=>{})})}</script>
+<script src="app.js?v=2026-07-03-1"></script>
+<script>
+if("serviceWorker" in navigator){
+let refreshing=false;
+navigator.serviceWorker.addEventListener("controllerchange",()=>{if(refreshing)return;refreshing=true;window.location.reload()});
+window.addEventListener("load",async()=>{try{const registration=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});registration.update()}catch{}})
+}
+</script>
 </body>
 </html>
