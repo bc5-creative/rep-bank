@@ -1,11 +1,11 @@
 {
-  "name": "Daily Maintenance",
-  "short_name": "Maintenance",
-  "description": "A personal goal planner and tracker.",
+  "name": "done",
+  "short_name": "done",
+  "description": "Collect what you've done.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#2b1a13",
-  "theme_color": "#2f3a2f",
+  "background_color": "#22130d",
+  "theme_color": "#22130d",
   "icons": [
     {
       "src": "icon-192.png",

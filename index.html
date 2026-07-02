@@ -1,157 +1,93 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#2f3a2f" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css" />
-  <title>Daily Maintenance</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#22130d" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="stylesheet" href="style.css" />
+<title>done</title>
 </head>
 <body>
-  <main class="app">
-    <header class="top">
-      <h1>Daily<br>Maintenance</h1>
-      <div class="date" id="dateText"></div>
-    </header>
+<main class="app">
+<header class="top"><div class="brand">done</div><div class="date" id="dateText"></div></header>
 
-    <nav class="tabs">
-      <button class="tab active" id="tabToday" onclick="setView('today')">Today</button>
-      <button class="tab" id="tabReview" onclick="setView('review')">Review</button>
-      <button class="tab" id="tabSettings" onclick="setView('settings')">Settings</button>
-    </nav>
+<section id="todayView">
+<section class="hero">
+<div class="brief-label" id="briefLabel">Today’s brief</div>
 
-    <section id="todayView">
-      <section class="card hero-card" id="pushCard">
-        <div class="section-label" id="pushLabel">Today's Brief</div>
+<button class="target-disc" onclick="toggleDisc()" aria-label="Show today’s record">
+<div class="disc-face" id="discFront">
+<div class="target-number" id="pushTarget">0</div>
+<div class="target-unit">push-ups</div>
+</div>
+<div class="disc-face hide" id="discBack">
+<div class="back-title">Today</div>
+<div class="back-list" id="discBackList"></div>
+<div class="back-total" id="discBackTotal">0</div>
+</div>
+</button>
 
-        <div id="pushActive">
-          <div class="hero-number">
-            <span id="pushTarget">0</span>
-            <small>push-ups</small>
-          </div>
+<div class="progress-card">
+<div class="progress-header">
+<div><div class="progress-big" id="pushDone">0</div><div class="progress-label">completed</div></div>
+<div><div class="progress-big red" id="pushRemaining">0</div><div class="progress-label">remaining</div></div>
+</div>
+<div class="segments" id="pushSegments">
+<div class="seg seg1"><div class="segfill"></div></div>
+<div class="seg seg2"><div class="segfill"></div></div>
+<div class="seg seg3"><div class="segfill"></div></div>
+<div class="seg seg4"><div class="segfill"></div></div>
+</div>
+<div class="stamp hide" id="pushRecorded">done.</div>
+<button class="record-button" onclick="openRecordSheet()">Record</button>
+</div>
+</section>
 
-          <div class="segments" id="pushSegments">
-            <div class="seg seg1"><div class="segfill"></div></div>
-            <div class="seg seg2"><div class="segfill"></div></div>
-            <div class="seg seg3"><div class="segfill"></div></div>
-            <div class="seg seg4"><div class="segfill"></div></div>
-          </div>
+<section class="drawer-card"><div class="section-label">Today’s record</div><div class="history" id="pushHistory"></div></section>
+<section class="drawer-card"><div class="section-label">Other things done</div><div id="commitmentsList"></div></section>
+</section>
 
-          <div id="pushRecorded" class="stamp hide">Recorded.</div>
+<section id="reviewView" class="hide view-panel">
+<section class="drawer-card"><div class="section-label">Review</div>
+<div class="grid">
+<div class="stat"><div class="stat-num" id="weekPushTotal">0</div><div class="stat-label">push-ups this week</div></div>
+<div class="stat"><div class="stat-num" id="allPushTotal">0</div><div class="stat-label">push-ups total</div></div>
+<div class="stat"><div class="stat-num" id="parkRunTotal">0</div><div class="stat-label">ParkRuns this year</div></div>
+<div class="stat"><div class="stat-num" id="parkRunRemain">35</div><div class="stat-label">ParkRuns remaining</div></div>
+<div class="stat"><div class="stat-num" id="dryWeek">0</div><div class="stat-label">Dry Days</div></div>
+<div class="stat"><div class="stat-num" id="socialWeek">0</div><div class="stat-label">social-free</div></div>
+</div></section>
+</section>
 
-          <div class="stat-row">
-            <div class="stat">
-              <div class="stat-num" id="pushDone">0</div>
-              <div class="stat-label">Processed</div>
-            </div>
-            <div class="stat">
-              <div class="stat-num" id="pushRemaining">0</div>
-              <div class="stat-label">Outstanding</div>
-            </div>
-          </div>
+<section id="settingsView" class="hide view-panel">
+<section class="drawer-card"><div class="section-label">Settings</div>
+<div class="settings-grid">
+<label><span>ParkRuns already completed this year</span><input id="parkRunStartingTotal" type="number" min="0" max="35" /></label>
+<label><span>Push-up challenge start date</span><input id="pushStartDate" type="date" /></label>
+<button class="record-button" onclick="saveSettings()">Save settings</button>
+<button class="secondary" onclick="regeneratePushupChallenge()">Regenerate push-up plan</button>
+<button class="danger" onclick="resetAll()">Reset all app data</button>
+</div></section>
+</section>
 
-          <div class="rep-buttons">
-            <button onclick="addPushups(5)">+5</button>
-            <button onclick="addPushups(10)">+10</button>
-            <button onclick="addPushups(15)">+15</button>
-            <button onclick="addPushups(20)">+20</button>
-          </div>
+<nav class="bottom-nav"><button onclick="setView('today')" id="navToday">Today</button><button onclick="setView('review')" id="navReview">Review</button><button onclick="setView('settings')" id="navSettings">Settings</button></nav>
+<div class="tagline">collect what you’ve done.</div>
+</main>
 
-          <div class="custom">
-            <input id="customPushups" inputmode="numeric" pattern="[0-9]*" placeholder="Custom amount" />
-            <button onclick="addCustomPushups()">Bank</button>
-          </div>
-        </div>
+<div class="sheet hide" id="recordSheet">
+<div class="sheet-panel">
+<button class="sheet-close" onclick="closeRecordSheet()">×</button>
+<div class="section-label">Record push-ups</div>
+<div class="entry-number" id="recordAmount">20</div>
+<div class="adjust-grid"><button onclick="adjustRecord(-5)">−5</button><button onclick="adjustRecord(-1)">−1</button><button onclick="adjustRecord(1)">+1</button><button onclick="adjustRecord(5)">+5</button></div>
+<div class="preset-grid"><button onclick="setRecordAmount(10)">10</button><button onclick="setRecordAmount(15)">15</button><button onclick="setRecordAmount(20)">20</button><button onclick="setRecordAmount(25)">25</button></div>
+<button class="record-button" onclick="recordPushups()">Record</button>
+</div>
+</div>
 
-        <div id="pushRest" class="hide">
-          <div class="stamp olive">Administrative leave.</div>
-          <p class="subtle">No push-up allocation today.</p>
-        </div>
-      </section>
-
-      <section class="card secondary-card">
-        <div class="section-label">Other commitments</div>
-        <div id="commitmentsList"></div>
-      </section>
-
-      <section class="card secondary-card">
-        <div class="section-label">Push-up record</div>
-        <div class="history" id="pushHistory"></div>
-        <div class="two-buttons">
-          <button class="secondary" onclick="undoPushups()">Undo</button>
-          <button class="secondary" onclick="resetPushups()">Reset</button>
-        </div>
-      </section>
-    </section>
-
-    <section id="reviewView" class="hide">
-      <section class="card secondary-card">
-        <div class="section-label">Current totals</div>
-        <div class="grid">
-          <div class="stat"><div class="stat-num" id="weekPushTotal">0</div><div class="stat-label">Push-ups this week</div></div>
-          <div class="stat"><div class="stat-num" id="allPushTotal">0</div><div class="stat-label">Push-ups total</div></div>
-          <div class="stat"><div class="stat-num" id="parkRunTotal">0</div><div class="stat-label">ParkRuns this year</div></div>
-          <div class="stat"><div class="stat-num" id="parkRunRemain">35</div><div class="stat-label">ParkRuns remaining</div></div>
-        </div>
-      </section>
-
-      <section class="card secondary-card">
-        <div class="section-label">This week</div>
-        <div class="grid">
-          <div class="stat"><div class="stat-num" id="dryWeek">0</div><div class="stat-label">Dry Days</div></div>
-          <div class="stat"><div class="stat-num" id="fastWeek">0</div><div class="stat-label">Fast</div></div>
-          <div class="stat"><div class="stat-num" id="socialWeek">0</div><div class="stat-label">Social-free</div></div>
-          <div class="stat"><div class="stat-num" id="commitmentWeek">0</div><div class="stat-label">Recorded</div></div>
-        </div>
-      </section>
-    </section>
-
-    <section id="settingsView" class="hide">
-      <section class="card secondary-card">
-        <div class="section-label">Starting totals</div>
-        <div class="settings-grid">
-          <label>
-            <span>ParkRuns already completed this year</span>
-            <input id="parkRunStartingTotal" type="number" min="0" max="35" />
-          </label>
-          <label>
-            <span>Push-up challenge start date</span>
-            <input id="pushStartDate" type="date" />
-          </label>
-          <button onclick="saveSettings()">Save settings</button>
-          <button class="secondary" onclick="regeneratePushupChallenge()">Regenerate push-up plan</button>
-        </div>
-      </section>
-
-      <section class="card secondary-card">
-        <div class="section-label">Schedule</div>
-        <p class="subtle">
-          Dry Day: available any day you want to record it.<br>
-          Fast: Tuesday and Thursday only.<br>
-          Social-media-free: available any day you want to record it.<br>
-          ParkRun: Saturday only.<br>
-          Push-ups: Monday–Saturday, Sunday rest.
-        </p>
-      </section>
-
-      <section class="card secondary-card">
-        <div class="section-label">Data</div>
-        <button class="danger" onclick="resetAll()">Reset all app data</button>
-      </section>
-    </section>
-
-    <footer>Daily Maintenance v0.2 · A quiet record of things done.</footer>
-  </main>
-
-  <script src="app.js"></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-      });
-    }
-  </script>
+<script src="app.js"></script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./service-worker.js").catch(()=>{})})}</script>
 </body>
 </html>

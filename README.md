@@ -1,21 +1,11 @@
-# Daily Maintenance v0.2
+# done v0.3
 
-Rebuilt as a cleaner multi-file release.
-
-Files:
-- index.html
-- style.css
-- app.js
-- manifest.json
-- service-worker.js
-- icons
-
-Changes:
-- Push-ups are now the featured first-screen experience.
-- Dark walnut-style background.
-- Cream paper cards.
-- Four separate progress quarters: olive, brass, walnut, oxblood.
-- Other commitments sit below the push-up section.
-- Same storage key as previous build, so existing push-up data should carry over.
-
-Upload all files to GitHub and commit.
+Working iteration:
+- Product name changed to done.
+- Push-up target shown on a leather circle.
+- Completed and remaining are visible throughout the day.
+- Record button opens a bottom sheet to record a set.
+- Presets: 10, 15, 20, 25.
+- Fine controls: -5, -1, +1, +5.
+- Tap the leather circle to flip between target and today’s recorded sets.
+- Existing push-up data should carry over because the same storage key is used.
