@@ -1,13 +1,16 @@
-const CACHE_VERSION = "2026-07-03-1";
+const CACHE_VERSION = "2026-07-03-2";
 const CACHE_NAME = `done-${CACHE_VERSION}`;
 const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./style.css?v=2026-07-03-1",
-  "./app.js?v=2026-07-03-1",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "/rep-bank/",
+  "/rep-bank/index.html",
+  "/rep-bank/style.css?v=2026-07-03-2",
+  "/rep-bank/app.js?v=2026-07-03-2",
+  "/rep-bank/manifest.json",
+  "/rep-bank/done-logo.png",
+  "/rep-bank/walnut-texture.png",
+  "/rep-bank/apple-touch-icon.png",
+  "/rep-bank/icon-192.png",
+  "/rep-bank/icon-512.png"
 ];
 
 self.addEventListener("install", event => {
@@ -33,7 +36,7 @@ self.addEventListener("fetch", event => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request, "./index.html"));
+    event.respondWith(networkFirst(request, "/rep-bank/index.html"));
     return;
   }
 

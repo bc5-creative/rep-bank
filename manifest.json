@@ -2,20 +2,23 @@
   "name": "done",
   "short_name": "done",
   "description": "Collect what you've done.",
-  "start_url": "./index.html",
+  "start_url": "/rep-bank/",
+  "scope": "/rep-bank/",
   "display": "standalone",
   "background_color": "#22130d",
   "theme_color": "#22130d",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/rep-bank/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/rep-bank/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

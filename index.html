@@ -4,14 +4,20 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#22130d" />
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="icon-192.png" />
-<link rel="stylesheet" href="style.css?v=2026-07-03-1" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name" content="done" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="done" />
+<link rel="manifest" href="/rep-bank/manifest.json" />
+<link rel="apple-touch-icon" href="/rep-bank/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="/rep-bank/icon-192.png" />
+<link rel="stylesheet" href="/rep-bank/style.css?v=2026-07-03-2" />
 <title>done</title>
 </head>
 <body>
 <main class="app">
-<header class="top"><div class="brand">done</div><div class="date" id="dateText"></div></header>
+<header class="top"><img class="brand-logo" src="/rep-bank/done-logo.png" alt="done" /><div class="date" id="dateText"></div></header>
 
 <section id="todayView">
 <section class="hero">
@@ -87,7 +93,7 @@
 </div>
 </div>
 
-<script src="app.js?v=2026-07-03-1"></script>
+<script src="/rep-bank/app.js?v=2026-07-03-2"></script>
 <script>
 if("serviceWorker" in navigator){
 let refreshing=false;
