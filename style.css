@@ -24,10 +24,7 @@ body {
   min-height: 100vh;
   font-family: Montserrat, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--paper);
-  background:
-    radial-gradient(circle at 32% 4%, rgba(196, 151, 86, .11), transparent 31%),
-    linear-gradient(160deg, rgba(31, 15, 8, .90), rgba(70, 37, 21, .58) 43%, rgba(23, 12, 7, .94)),
-    url("/rep-bank/walnut-texture.png") center / cover no-repeat;
+  background: #21110a url("/rep-bank/walnut-background.svg") center / cover no-repeat;
   padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 16px);
 }
 
@@ -36,11 +33,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, .025), transparent 18%, rgba(0, 0, 0, .10) 42%, transparent 68%),
-    radial-gradient(circle at 50% 28%, transparent 0 44%, rgba(8, 4, 2, .18) 100%);
-  mix-blend-mode: soft-light;
-  opacity: .72;
+  background: rgba(10, 4, 2, .08);
 }
 
 .app {
@@ -106,24 +99,24 @@ body::before {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 38% 24%, rgba(255, 182, 112, .18), transparent 31%),
-    linear-gradient(142deg, rgba(169, 70, 33, .72), rgba(132, 51, 25, .64)),
+    radial-gradient(circle at 38% 21%, rgba(255, 164, 92, .20), transparent 32%),
+    linear-gradient(145deg, rgba(190, 72, 24, .28), rgba(119, 39, 14, .34)),
     url("/rep-bank/leather-texture.png") center / cover;
   box-shadow:
-    0 23px 30px rgba(5, 2, 1, .34),
-    0 8px 12px rgba(5, 2, 1, .24),
-    inset 0 2px 1px rgba(255, 184, 110, .17),
-    inset 0 -10px 16px rgba(73, 25, 12, .28);
+    0 24px 26px rgba(9, 3, 1, .38),
+    0 7px 10px rgba(9, 3, 1, .28),
+    inset 0 2px 2px rgba(255, 170, 87, .25),
+    inset 0 -9px 14px rgba(71, 20, 7, .30);
   cursor: pointer;
 }
 
 .target-disc::before {
   content: "";
   position: absolute;
-  inset: 13px;
+  inset: 14px;
   border-radius: 50%;
-  border: 2px dashed rgba(105, 47, 27, .64);
-  opacity: .72;
+  border: 2px dashed rgba(82, 31, 15, .62);
+  opacity: .78;
 }
 
 .target-disc::after {
@@ -131,10 +124,10 @@ body::before {
   position: absolute;
   inset: 3px;
   border-radius: 50%;
-  border: 1px solid rgba(225, 125, 72, .26);
+  border: 2px solid rgba(223, 103, 43, .42);
   box-shadow:
-    inset 0 0 0 1px rgba(72, 25, 12, .22),
-    inset 0 0 28px rgba(74, 25, 11, .12);
+    inset 0 0 0 2px rgba(94, 30, 10, .24),
+    inset 0 0 22px rgba(92, 26, 8, .16);
 }
 
 .disc-face {
@@ -147,7 +140,7 @@ body::before {
 }
 
 .target-number {
-  font-family: Clarendon, "Clarendon BT", "Rockwell Extra Bold", Rockwell, "Bookman Old Style", Georgia, serif;
+  font-family: "clarendon-urw", Clarendon, "Clarendon BT", "Rockwell Extra Bold", Rockwell, "Bookman Old Style", Georgia, serif;
   color: #f0d8a9;
   font-size: 108px;
   font-weight: 800;
@@ -192,7 +185,7 @@ body::before {
   padding-top: 12px;
   border-top: 2px solid rgba(74, 33, 19, .35);
   color: rgba(54, 22, 12, .90);
-  font-family: Clarendon, "Clarendon BT", Rockwell, "Bookman Old Style", Georgia, serif;
+  font-family: "clarendon-urw", Clarendon, "Clarendon BT", Rockwell, "Bookman Old Style", Georgia, serif;
   font-size: 42px;
   font-weight: 800;
   font-variant-numeric: lining-nums tabular-nums;
@@ -490,7 +483,7 @@ input {
 
 .stamp {
   color: var(--brass-soft);
-  font-family: Clarendon, "Clarendon BT", Rockwell, Georgia, serif;
+  font-family: "clarendon-urw", Clarendon, "Clarendon BT", Rockwell, Georgia, serif;
   font-size: 34px;
   font-weight: 800;
   text-align: center;
@@ -542,7 +535,7 @@ input {
 }
 
 .entry-number {
-  font-family: Clarendon, "Clarendon BT", "Rockwell Extra Bold", Rockwell, "Bookman Old Style", Georgia, serif;
+  font-family: "clarendon-urw", Clarendon, "Clarendon BT", "Rockwell Extra Bold", Rockwell, "Bookman Old Style", Georgia, serif;
   font-size: 86px;
   text-align: center;
   color: #28331f;
