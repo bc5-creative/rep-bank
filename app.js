@@ -35,16 +35,10 @@ function niceDate(date) {
   }).format(date);
 }
 
-function tomorrowKey() {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
-  return dateToKey(date);
-}
-
 function defaultState() {
   return {
     view: "today",
-    settings: { pushStartDate: tomorrowKey(), parkRunStartingTotal: 0 },
+    settings: { pushStartDate: todayKey(), parkRunStartingTotal: 0 },
     pushups: { challenge: null },
     commitments: {}
   };
@@ -203,7 +197,7 @@ function generatePushupChallenge(startDate) {
 
 function ensurePushupChallenge() {
   if (!state.pushups.challenge) {
-    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || tomorrowKey());
+    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || todayKey());
     saveState();
   }
 }
@@ -352,7 +346,7 @@ function setView(view) {
 }
 
 function saveSettings() {
-  state.settings.pushStartDate = document.getElementById("pushStartDate").value || tomorrowKey();
+  state.settings.pushStartDate = document.getElementById("pushStartDate").value || todayKey();
   state.settings.parkRunStartingTotal =
     parseInt(document.getElementById("parkRunStartingTotal").value, 10) || 0;
   saveState();
@@ -361,7 +355,7 @@ function saveSettings() {
 
 function regeneratePushupChallenge() {
   if (confirm("Regenerate the push-up plan? Existing push-up records will be cleared.")) {
-    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || tomorrowKey());
+    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || todayKey());
     saveState();
     render();
   }
@@ -496,7 +490,7 @@ function renderReview() {
 }
 
 function renderSettings() {
-  document.getElementById("pushStartDate").value = state.settings.pushStartDate || tomorrowKey();
+  document.getElementById("pushStartDate").value = state.settings.pushStartDate || todayKey();
   document.getElementById("parkRunStartingTotal").value = state.settings.parkRunStartingTotal || 0;
 }
 
