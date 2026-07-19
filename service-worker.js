@@ -1,4 +1,4 @@
-const CACHE_VERSION = "2026-07-18-1";
+const CACHE_VERSION = "2026-07-19-1";
 const CACHE_NAME = `done-${CACHE_VERSION}`;
 const APP_SHELL = [
   "/rep-bank/",
