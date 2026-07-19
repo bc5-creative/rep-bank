@@ -24,7 +24,12 @@ body {
   min-height: 100vh;
   font-family: Montserrat, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--paper);
-  background: #21110a url("/rep-bank/walnut-background.svg") center / cover no-repeat;
+  background-color: #21110a;
+  background-image: url("./walnut-texture.webp");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
   padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 16px);
 }
 

@@ -1,13 +1,13 @@
-const CACHE_VERSION = "2026-07-03-6";
+const CACHE_VERSION = "2026-07-18-1";
 const CACHE_NAME = `done-${CACHE_VERSION}`;
 const APP_SHELL = [
   "/rep-bank/",
   "/rep-bank/index.html",
-  "/rep-bank/style.css?v=2026-07-03-6",
-  "/rep-bank/app.js?v=2026-07-03-6",
+  "/rep-bank/style.css?v=2026-07-03-7",
+  "/rep-bank/app.js?v=2026-07-18-1",
   "/rep-bank/manifest.json",
   "/rep-bank/done-logo.png",
-  "/rep-bank/walnut-background.svg",
+  "/rep-bank/walnut-texture.webp",
   "/rep-bank/leather-texture.png",
   "/rep-bank/apple-touch-icon.png",
   "/rep-bank/icon-192.png",

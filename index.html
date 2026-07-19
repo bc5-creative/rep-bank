@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="/rep-bank/apple-touch-icon.png" />
 <link rel="icon" type="image/png" sizes="192x192" href="/rep-bank/icon-192.png" />
 <link rel="stylesheet" href="https://use.typekit.net/zgg4cra.css" />
-<link rel="stylesheet" href="/rep-bank/style.css?v=2026-07-03-6" />
+<link rel="stylesheet" href="/rep-bank/style.css?v=2026-07-03-7" />
 <title>done</title>
 </head>
 <body>
@@ -38,8 +38,8 @@
 
 <div class="progress-card">
 <div class="progress-header">
-<div><div class="progress-big" id="pushDone">0</div><div class="progress-label">completed</div></div>
-<div><div class="progress-big red" id="pushRemaining">0</div><div class="progress-label">remaining</div></div>
+<div><div class="progress-big" id="pushDone">0</div><div class="progress-label">done today</div></div>
+<div><div class="progress-big red" id="pushRemaining">0</div><div class="progress-label">challenge left</div></div>
 </div>
 <div class="segments" id="pushSegments">
 <div class="seg seg1"><div class="segfill"></div></div>
@@ -63,7 +63,9 @@
 <div class="stat"><div class="stat-num" id="allPushTotal">0</div><div class="stat-label">push-ups total</div></div>
 <div class="stat"><div class="stat-num" id="parkRunTotal">0</div><div class="stat-label">ParkRuns this year</div></div>
 <div class="stat"><div class="stat-num" id="parkRunRemain">35</div><div class="stat-label">ParkRuns remaining</div></div>
+<div class="stat"><div class="stat-num" id="fastWeek">0</div><div class="stat-label">Fast days</div></div>
 <div class="stat"><div class="stat-num" id="dryWeek">0</div><div class="stat-label">Dry Days</div></div>
+<div class="stat"><div class="stat-num" id="dessertWeek">0</div><div class="stat-label">dessert-free</div></div>
 <div class="stat"><div class="stat-num" id="socialWeek">0</div><div class="stat-label">social-free</div></div>
 </div></section>
 </section>
@@ -73,6 +75,7 @@
 <div class="settings-grid">
 <label><span>ParkRuns already completed this year</span><input id="parkRunStartingTotal" type="number" min="0" max="35" /></label>
 <label><span>Push-up challenge start date</span><input id="pushStartDate" type="date" /></label>
+<label><span>28-day push-up total</span><input id="pushChallengeTotal" type="number" min="960" max="2880" step="1" /></label>
 <button class="record-button" onclick="saveSettings()">Save settings</button>
 <button class="secondary" onclick="regeneratePushupChallenge()">Regenerate push-up plan</button>
 <button class="danger" onclick="resetAll()">Reset all app data</button>
@@ -94,7 +97,7 @@
 </div>
 </div>
 
-<script src="/rep-bank/app.js?v=2026-07-03-6"></script>
+<script src="/rep-bank/app.js?v=2026-07-18-1"></script>
 <script>
 if("serviceWorker" in navigator){
 let refreshing=false;

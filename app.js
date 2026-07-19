@@ -1,6 +1,9 @@
 const STORAGE_KEY = "dailyMaintenance.phase1b";
-const PUSH_WEEKLY_TOTAL = 450;
-const PUSH_WEEKS = 8;
+const PUSH_CHALLENGE_DAYS = 28;
+const PUSH_ACTIVE_DAYS = 24;
+const PUSH_DEFAULT_TOTAL = 1200;
+const PUSH_MIN_DAILY = 40;
+const PUSH_MAX_DAILY = 120;
 const PARKRUN_GOAL = 35;
 
 let recordAmount = 20;
@@ -38,7 +41,11 @@ function niceDate(date) {
 function defaultState() {
   return {
     view: "today",
-    settings: { pushStartDate: todayKey(), parkRunStartingTotal: 0 },
+    settings: {
+      pushStartDate: todayKey(),
+      pushChallengeTotal: PUSH_DEFAULT_TOTAL,
+      parkRunStartingTotal: 0
+    },
     pushups: { challenge: null },
     commitments: {}
   };
@@ -75,6 +82,11 @@ function migrateState(loaded) {
 
   if (!loaded.pushups || typeof loaded.pushups !== "object") {
     loaded.pushups = { challenge: null };
+    changed = true;
+  }
+
+  if (!loaded.settings.pushChallengeTotal) {
+    loaded.settings.pushChallengeTotal = PUSH_DEFAULT_TOTAL;
     changed = true;
   }
 
@@ -142,62 +154,92 @@ function hasObviousPattern(numbers) {
   );
 }
 
-function makeCuratedPushupWeek() {
-  for (let attempt = 0; attempt < 500; attempt++) {
-    const easy = 50 + Math.floor(11 * Math.random());
-    const big = 92 + Math.floor(9 * Math.random());
-    let remaining = PUSH_WEEKLY_TOTAL - easy - big;
-    const medium = [];
+function clampChallengeTotal(total) {
+  const min = PUSH_ACTIVE_DAYS * PUSH_MIN_DAILY;
+  const max = PUSH_ACTIVE_DAYS * PUSH_MAX_DAILY;
+  return Math.max(min, Math.min(max, total || PUSH_DEFAULT_TOTAL));
+}
 
-    for (let i = 0; i < 3; i++) {
-      const minRemaining = (3 - i) * 62;
-      const max = Math.min(88, remaining - minRemaining);
-      const min = Math.max(62, remaining - (3 - i) * 88);
+function makeChallengeTargets(totalTarget) {
+  const total = clampChallengeTotal(totalTarget);
+
+  for (let attempt = 0; attempt < 500; attempt++) {
+    let remaining = total;
+    const targets = [];
+
+    for (let index = 0; index < PUSH_ACTIVE_DAYS; index++) {
+      const daysLeft = PUSH_ACTIVE_DAYS - index - 1;
+      const min = Math.max(PUSH_MIN_DAILY, remaining - PUSH_MAX_DAILY * daysLeft);
+      const max = Math.min(PUSH_MAX_DAILY, remaining - PUSH_MIN_DAILY * daysLeft);
       const value = min + Math.floor(Math.random() * (max - min + 1));
-      medium.push(value);
+      targets.push(value);
       remaining -= value;
     }
 
-    medium.push(remaining);
-    const targets = shuffle([easy, big, ...medium]);
-
+    const shuffled = shuffle(targets);
     if (
-      targets.reduce((sum, value) => sum + value, 0) === PUSH_WEEKLY_TOTAL &&
-      targets.every(value => value >= 50 && value <= 100) &&
-      !hasObviousPattern(targets)
+      shuffled.reduce((sum, value) => sum + value, 0) === total &&
+      shuffled.every(value => value >= PUSH_MIN_DAILY && value <= PUSH_MAX_DAILY) &&
+      !hasObviousPattern(shuffled)
     ) {
-      return targets;
+      return shuffled;
     }
   }
 
-  return shuffle([55, 96, 72, 84, 63, 80]);
+  const targets = Array(PUSH_ACTIVE_DAYS).fill(PUSH_MIN_DAILY);
+  let extra = total - PUSH_ACTIVE_DAYS * PUSH_MIN_DAILY;
+
+  while (extra > 0) {
+    const available = targets
+      .map((value, index) => ({ value, index }))
+      .filter(item => item.value < PUSH_MAX_DAILY);
+    const picked = available[Math.floor(Math.random() * available.length)];
+    const add = Math.min(extra, PUSH_MAX_DAILY - targets[picked.index], 1 + Math.floor(Math.random() * 8));
+    targets[picked.index] += add;
+    extra -= add;
+  }
+
+  return shuffle(targets);
 }
 
-function generatePushupChallenge(startDate) {
+function generatePushupChallenge(startDate, totalTarget = PUSH_DEFAULT_TOTAL) {
   const days = {};
   const current = parseDate(startDate);
+  const total = clampChallengeTotal(totalTarget);
+  const targets = makeChallengeTargets(total);
+  let activeIndex = 0;
 
-  for (let week = 1; week <= PUSH_WEEKS; week++) {
-    const targets = makeCuratedPushupWeek();
-
-    for (let day = 0; day < 7; day++) {
-      const key = dateToKey(current);
-      days[key] = {
-        week,
-        target: day === 6 ? 0 : targets[day],
-        rest: day === 6,
-        reps: []
-      };
-      current.setDate(current.getDate() + 1);
-    }
+  for (let dayIndex = 0; dayIndex < PUSH_CHALLENGE_DAYS; dayIndex++) {
+    const key = dateToKey(current);
+    const rest = dayIndex % 7 === 6;
+    days[key] = {
+      week: Math.floor(dayIndex / 7) + 1,
+      day: dayIndex + 1,
+      target: rest ? 0 : targets[activeIndex],
+      rest,
+      reps: []
+    };
+    if (!rest) activeIndex += 1;
+    current.setDate(current.getDate() + 1);
   }
 
-  return { startDate, weeks: PUSH_WEEKS, weeklyTotal: PUSH_WEEKLY_TOTAL, days };
+  return {
+    startDate,
+    daysCount: PUSH_CHALLENGE_DAYS,
+    activeDays: PUSH_ACTIVE_DAYS,
+    totalTarget: total,
+    minDaily: PUSH_MIN_DAILY,
+    maxDaily: PUSH_MAX_DAILY,
+    days
+  };
 }
 
 function ensurePushupChallenge() {
   if (!state.pushups.challenge) {
-    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || todayKey());
+    state.pushups.challenge = generatePushupChallenge(
+      state.settings.pushStartDate || todayKey(),
+      state.settings.pushChallengeTotal || PUSH_DEFAULT_TOTAL
+    );
     saveState();
   }
 }
@@ -304,6 +346,18 @@ function getPushupTotal() {
   }, 0);
 }
 
+function getPushupTargetTotal() {
+  ensurePushupChallenge();
+  if (state.pushups.challenge.totalTarget) {
+    return state.pushups.challenge.totalTarget;
+  }
+  return Object.values(state.pushups.challenge.days).reduce((sum, day) => sum + (day.target || 0), 0);
+}
+
+function getChallengeRemaining() {
+  return Math.max(0, getPushupTargetTotal() - getPushupTotal());
+}
+
 function getPushupWeekTotal() {
   const day = getPushDay();
   if (!day) return 0;
@@ -316,17 +370,11 @@ function getPushupWeekTotal() {
 function commitmentItemsForToday() {
   const dayOfWeek = new Date().getDay();
   const items = [
+    { type: "fasting", title: "Fast", detail: `${countThisWeek("fasting")} recorded this week.` },
     { type: "dry", title: "Dry Day", detail: `${countThisWeek("dry")} recorded this week.` },
+    { type: "dessert", title: "Dessert-free day", detail: `${countThisWeek("dessert")} recorded this week.` },
     { type: "social", title: "Social-media-free day", detail: `${countThisWeek("social")} recorded this week.` }
   ];
-
-  if (dayOfWeek === 2 || dayOfWeek === 4) {
-    items.splice(1, 0, {
-      type: "fasting",
-      title: "Fast",
-      detail: `${countThisWeek("fasting")} of 2 recorded this week.`
-    });
-  }
 
   if (dayOfWeek === 6) {
     items.unshift({
@@ -346,16 +394,48 @@ function setView(view) {
 }
 
 function saveSettings() {
-  state.settings.pushStartDate = document.getElementById("pushStartDate").value || todayKey();
-  state.settings.parkRunStartingTotal =
-    parseInt(document.getElementById("parkRunStartingTotal").value, 10) || 0;
+  const nextStartDate = document.getElementById("pushStartDate").value || todayKey();
+  const nextTotal = clampChallengeTotal(parseInt(document.getElementById("pushChallengeTotal").value, 10));
+  const nextParkRuns = parseInt(document.getElementById("parkRunStartingTotal").value, 10) || 0;
+  const challenge = state.pushups.challenge;
+  const challengeSettingsChanged =
+    challenge &&
+    (challenge.startDate !== nextStartDate ||
+      challenge.totalTarget !== nextTotal ||
+      challenge.daysCount !== PUSH_CHALLENGE_DAYS);
+
+  state.settings.parkRunStartingTotal = nextParkRuns;
+
+  if (challengeSettingsChanged) {
+    if (!confirm("Changing the challenge start date or total will generate a new push-up plan. Existing push-up records in the current plan will be cleared. Continue?")) {
+      document.getElementById("pushStartDate").value = state.settings.pushStartDate || todayKey();
+      document.getElementById("pushChallengeTotal").value =
+        state.settings.pushChallengeTotal || getPushupTargetTotal();
+      saveState();
+      render();
+      return;
+    }
+
+    state.settings.pushStartDate = nextStartDate;
+    state.settings.pushChallengeTotal = nextTotal;
+    state.pushups.challenge = generatePushupChallenge(nextStartDate, nextTotal);
+    saveState();
+    render();
+    return;
+  }
+
+  state.settings.pushStartDate = nextStartDate;
+  state.settings.pushChallengeTotal = nextTotal;
   saveState();
   render();
 }
 
 function regeneratePushupChallenge() {
   if (confirm("Regenerate the push-up plan? Existing push-up records will be cleared.")) {
-    state.pushups.challenge = generatePushupChallenge(state.settings.pushStartDate || todayKey());
+    state.pushups.challenge = generatePushupChallenge(
+      state.settings.pushStartDate || todayKey(),
+      state.settings.pushChallengeTotal || PUSH_DEFAULT_TOTAL
+    );
     saveState();
     render();
   }
@@ -396,7 +476,7 @@ function renderEmptyPushups() {
   document.getElementById("briefLabel").textContent = "Today’s brief";
   document.getElementById("pushTarget").textContent = "-";
   document.getElementById("pushDone").textContent = "0";
-  document.getElementById("pushRemaining").textContent = "0";
+  document.getElementById("pushRemaining").textContent = getChallengeRemaining();
   document.getElementById("pushRecorded").classList.add("hide");
   renderSegments(0);
 
@@ -418,9 +498,9 @@ function renderPushups() {
     : `Today’s brief · Week ${day.week}`;
 
   if (day.rest) {
-    document.getElementById("pushTarget").textContent = "-";
+    document.getElementById("pushTarget").textContent = "0";
     document.getElementById("pushDone").textContent = "0";
-    document.getElementById("pushRemaining").textContent = "0";
+    document.getElementById("pushRemaining").textContent = getChallengeRemaining();
     document.getElementById("pushRecorded").classList.add("hide");
     renderSegments(0);
     return;
@@ -430,9 +510,9 @@ function renderPushups() {
   const remaining = Math.max(0, day.target - completed);
   const percent = Math.min(100, (completed / day.target) * 100);
 
-  document.getElementById("pushTarget").textContent = day.target;
+  document.getElementById("pushTarget").textContent = remaining;
   document.getElementById("pushDone").textContent = completed;
-  document.getElementById("pushRemaining").textContent = remaining;
+  document.getElementById("pushRemaining").textContent = getChallengeRemaining();
   renderSegments(percent);
   document.getElementById("pushRecorded").classList.toggle("hide", completed < day.target);
 
@@ -486,11 +566,15 @@ function renderReview() {
   document.getElementById("parkRunTotal").textContent = parkRuns;
   document.getElementById("parkRunRemain").textContent = Math.max(0, PARKRUN_GOAL - parkRuns);
   document.getElementById("dryWeek").textContent = countThisWeek("dry");
+  document.getElementById("dessertWeek").textContent = countThisWeek("dessert");
+  document.getElementById("fastWeek").textContent = countThisWeek("fasting");
   document.getElementById("socialWeek").textContent = countThisWeek("social");
 }
 
 function renderSettings() {
   document.getElementById("pushStartDate").value = state.settings.pushStartDate || todayKey();
+  document.getElementById("pushChallengeTotal").value =
+    state.settings.pushChallengeTotal || getPushupTargetTotal();
   document.getElementById("parkRunStartingTotal").value = state.settings.parkRunStartingTotal || 0;
 }
 
