@@ -92,7 +92,15 @@ body::before {
   letter-spacing: .12em;
   font-size: 11px;
   font-weight: 900;
-  margin: 8px 0 10px;
+  margin: 8px 0 4px;
+}
+
+.challenge-progress {
+  color: rgba(242, 221, 186, .82);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  margin-bottom: 10px;
 }
 
 .target-disc {

@@ -149,8 +149,7 @@ function shuffle(values) {
 function hasObviousPattern(numbers) {
   return (
     numbers.every((value, index) => index === 0 || value >= numbers[index - 1]) ||
-    numbers.every((value, index) => index === 0 || value <= numbers[index - 1]) ||
-    numbers.some((value, index) => index > 0 && value === numbers[index - 1])
+    numbers.every((value, index) => index === 0 || value <= numbers[index - 1])
   );
 }
 
@@ -160,43 +159,133 @@ function clampChallengeTotal(total) {
   return Math.max(min, Math.min(max, total || PUSH_DEFAULT_TOTAL));
 }
 
-function makeChallengeTargets(totalTarget) {
-  const total = clampChallengeTotal(totalTarget);
+function randomInt(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
 
-  for (let attempt = 0; attempt < 500; attempt++) {
-    let remaining = total;
-    const targets = [];
+function buildChallengeProfile(extra) {
+  if (extra >= 220) {
+    return {
+      challengeRanges: [[70, 78], [82, 90], [92, 102], [100, 112]],
+      solidCap: 30,
+      normalCap: 18
+    };
+  }
 
-    for (let index = 0; index < PUSH_ACTIVE_DAYS; index++) {
-      const daysLeft = PUSH_ACTIVE_DAYS - index - 1;
-      const min = Math.max(PUSH_MIN_DAILY, remaining - PUSH_MAX_DAILY * daysLeft);
-      const max = Math.min(PUSH_MAX_DAILY, remaining - PUSH_MIN_DAILY * daysLeft);
-      const value = min + Math.floor(Math.random() * (max - min + 1));
-      targets.push(value);
-      remaining -= value;
+  if (extra >= 160) {
+    return {
+      challengeRanges: [[64, 72], [72, 82], [82, 92], [88, 100]],
+      solidCap: 24,
+      normalCap: 14
+    };
+  }
+
+  if (extra >= 100) {
+    return {
+      challengeRanges: [[56, 64], [64, 72], [72, 82], [78, 88]],
+      solidCap: 18,
+      normalCap: 10
+    };
+  }
+
+  return {
+    challengeRanges: [[46, 54], [50, 58], [54, 64], [58, 70]],
+    solidCap: 12,
+    normalCap: 8
+  };
+}
+
+function addExtraRandomly(targets, slots, extra) {
+  let remaining = extra;
+  const available = slots.filter(slot => slot.cap > 0);
+
+  while (remaining > 0 && available.length > 0) {
+    const slot = available[randomInt(0, available.length - 1)];
+    const room = Math.min(remaining, slot.cap - slot.used, PUSH_MAX_DAILY - targets[slot.index]);
+
+    if (room <= 0) {
+      available.splice(available.indexOf(slot), 1);
+      continue;
     }
 
-    const shuffled = shuffle(targets);
+    const add = randomInt(1, Math.min(room, slot.step));
+    targets[slot.index] += add;
+    slot.used += add;
+    remaining -= add;
+  }
+
+  return remaining;
+}
+
+function makeChallengeTargets(totalTarget) {
+  const total = clampChallengeTotal(totalTarget);
+  const baseTotal = PUSH_ACTIVE_DAYS * PUSH_MIN_DAILY;
+  const extra = total - baseTotal;
+  const profile = buildChallengeProfile(extra);
+
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const targets = Array(PUSH_ACTIVE_DAYS).fill(PUSH_MIN_DAILY);
+    const challengeSlots = [3, 9, 16, 22];
+    let remaining = extra;
+
+    challengeSlots.forEach((slot, index) => {
+      const [minTarget, maxTarget] = profile.challengeRanges[index];
+      const target = randomInt(minTarget, maxTarget);
+      const add = Math.min(remaining, target - PUSH_MIN_DAILY);
+      targets[slot] += add;
+      remaining -= add;
+    });
+
+    const solidSlots = shuffle([2, 5, 7, 12, 14, 18, 20, 23]).map(index => ({
+      index,
+      cap: profile.solidCap,
+      step: 6,
+      used: 0
+    }));
+    remaining = addExtraRandomly(targets, solidSlots, remaining);
+
+    const normalSlots = shuffle([...Array(PUSH_ACTIVE_DAYS).keys()])
+      .filter(index => !challengeSlots.includes(index))
+      .map(index => ({
+        index,
+        cap: profile.normalCap,
+        step: 4,
+        used: 0
+      }));
+    remaining = addExtraRandomly(targets, normalSlots, remaining);
+
+    if (remaining > 0) {
+      const allSlots = shuffle([...Array(PUSH_ACTIVE_DAYS).keys()]).map(index => ({
+        index,
+        cap: PUSH_MAX_DAILY - targets[index],
+        step: 5,
+        used: 0
+      }));
+      remaining = addExtraRandomly(targets, allSlots, remaining);
+    }
+
     if (
-      shuffled.reduce((sum, value) => sum + value, 0) === total &&
-      shuffled.every(value => value >= PUSH_MIN_DAILY && value <= PUSH_MAX_DAILY) &&
-      !hasObviousPattern(shuffled)
+      remaining === 0 &&
+      targets.reduce((sum, value) => sum + value, 0) === total &&
+      targets.every(value => value >= PUSH_MIN_DAILY && value <= PUSH_MAX_DAILY) &&
+      !hasObviousPattern(targets) &&
+      (total < PUSH_DEFAULT_TOTAL || targets.filter(value => value >= 70).length >= 4)
     ) {
-      return shuffled;
+      return targets;
     }
   }
 
   const targets = Array(PUSH_ACTIVE_DAYS).fill(PUSH_MIN_DAILY);
-  let extra = total - PUSH_ACTIVE_DAYS * PUSH_MIN_DAILY;
+  let fallbackExtra = total - PUSH_ACTIVE_DAYS * PUSH_MIN_DAILY;
 
-  while (extra > 0) {
+  while (fallbackExtra > 0) {
     const available = targets
       .map((value, index) => ({ value, index }))
       .filter(item => item.value < PUSH_MAX_DAILY);
     const picked = available[Math.floor(Math.random() * available.length)];
-    const add = Math.min(extra, PUSH_MAX_DAILY - targets[picked.index], 1 + Math.floor(Math.random() * 8));
+    const add = Math.min(fallbackExtra, PUSH_MAX_DAILY - targets[picked.index], 1 + Math.floor(Math.random() * 8));
     targets[picked.index] += add;
-    extra -= add;
+    fallbackExtra -= add;
   }
 
   return shuffle(targets);
@@ -472,8 +561,35 @@ function renderSegments(percent) {
   });
 }
 
+function renderChallengeProgress(day) {
+  const progress = document.getElementById("challengeProgress");
+  const challenge = state.pushups.challenge;
+
+  if (!challenge || !challenge.days) {
+    progress.textContent = "28-day challenge";
+    return;
+  }
+
+  const daysCount = challenge.daysCount || Object.keys(challenge.days).length || PUSH_CHALLENGE_DAYS;
+  if (day) {
+    const dayNumber =
+      day.day ||
+      Object.keys(challenge.days)
+        .sort()
+        .findIndex(key => challenge.days[key] === day) + 1;
+    const daysToGo = Math.max(0, daysCount - dayNumber);
+    progress.textContent = `Day ${dayNumber} of ${daysCount} · ${daysToGo} ${
+      daysToGo === 1 ? "day" : "days"
+    } to go`;
+    return;
+  }
+
+  progress.textContent = "28-day challenge";
+}
+
 function renderEmptyPushups() {
   document.getElementById("briefLabel").textContent = "Today’s brief";
+  renderChallengeProgress(null);
   document.getElementById("pushTarget").textContent = "-";
   document.getElementById("pushDone").textContent = "0";
   document.getElementById("pushRemaining").textContent = getChallengeRemaining();
@@ -496,6 +612,7 @@ function renderPushups() {
   document.getElementById("briefLabel").textContent = day.rest
     ? "Administrative leave"
     : `Today’s brief · Week ${day.week}`;
+  renderChallengeProgress(day);
 
   if (day.rest) {
     document.getElementById("pushTarget").textContent = "0";
